@@ -43,7 +43,7 @@ export default function Index() {
     },
   ];
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: any) => {
     switch (status) {
       case "completed":
         return <Check className="h-5 w-5 text-green-500" />;
@@ -180,7 +180,7 @@ export default function Index() {
                     </p>
                   </div>
                   <div className="ml-2 flex-shrink-0">
-                    {getStatusIcon(module.status, module.locked)}
+                    {getStatusIcon(module.status)}
                   </div>
                 </div>
                 <div className="px-4 pb-3 flex justify-end">

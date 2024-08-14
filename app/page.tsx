@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import { Bell, User, Menu, Check, Lock, PlayCircle } from "lucide-react";
-
+import { Bell, User, Menu, Check, PlayCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+
 export default function Index() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -72,6 +72,7 @@ export default function Index() {
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-white shadow-md overflow-y-auto md:block`}
+        style={{ padding: "0" }} // Remove the padding
       >
         <div className="p-4">
           <div className="flex items-center space-x-2 mb-6">
@@ -105,7 +106,7 @@ export default function Index() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-6 md:ml-0">
+      <main className="flex-1 overflow-y-auto p-8 md:ml-0">
         {/* Daily News */}
         <div className="bg-gray-700 text-white p-4 mb-6 rounded-lg">
           <h2 className="font-bold mb-2 flex items-center">
@@ -150,7 +151,7 @@ export default function Index() {
             <div className="h-full w-1/2 bg-blue-500 rounded-full"></div>
           </div>
         </div>
-        {/* Current Module */}
+
         {/* Current Module */}
         <div>
           <h2 className="text-2xl font-bold mb-4">

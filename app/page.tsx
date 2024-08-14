@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Bell, User, Menu, Check, PlayCircle } from "lucide-react";
+import { Bell, User, Menu, Check, PlayCircle, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Index() {
@@ -66,13 +66,12 @@ export default function Index() {
       >
         <Menu className="h-6 w-6" />
       </button>
-
       {/* Sidebar */}
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-white shadow-md overflow-y-auto md:block`}
-        style={{ padding: "0" }} // Remove the padding
+        style={{ margin: "0", padding: "0" }} // Ensuring no margin or padding
       >
         <div className="p-4">
           <div className="flex items-center space-x-2 mb-6">
@@ -161,10 +160,10 @@ export default function Index() {
             {modules.map((module, index) => (
               <div
                 key={index}
-                className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
-                  module.locked ? "opacity-75" : ""
+                className={`relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
+                  module.locked ? "opacity-75 cursor-not-allowed" : ""
                 }`}
-                onClick={() => router.push("/quiz")}
+                onClick={() => !module.locked && router.push("/quiz")} // Only allow navigation if not locked
               >
                 <div className="p-4 flex items-start">
                   <div
@@ -204,6 +203,11 @@ export default function Index() {
                     ))}
                   </div>
                 </div>
+                {module.locked && (
+                  <div className="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
+                    <Lock className="h-8 w-8 text-white" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

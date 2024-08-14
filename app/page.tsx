@@ -1,30 +1,26 @@
-import DeployButton from "../components/DeployButton";
-import AuthButton from "../components/AuthButton";
-import { createClient } from "@/utils/supabase/server";
-import ConnectSupabaseSteps from "@/components/tutorial/ConnectSupabaseSteps";
-import SignUpUserSteps from "@/components/tutorial/SignUpUserSteps";
-import Header from "@/components/Header";
+"use client";
+import React, { useState } from "react";
+import { Bell, User, ChevronRight, Menu } from "lucide-react";
 
-import { Bell, User, ChevronRight } from "lucide-react";
-// import Island from "./island.svg";
-export default async function Index() {
-  const canInitSupabaseClient = () => {
-    // This function is just for the interactive tutorial.
-    // Feel free to remove it once you have Supabase connected.
-    try {
-      createClient();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const isSupabaseConnected = canInitSupabaseClient();
+export default function Index() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col h-screen bg-gray-100 md:flex-row">
+      {/* Mobile menu button */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-20 p-2 bg-white rounded-md shadow-md"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md">
+      <aside
+        className={`${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-white shadow-md overflow-y-auto md:block`}
+      >
         <div className="p-4">
           <div className="flex items-center space-x-2 mb-6">
             <User className="h-6 w-6" />
@@ -57,7 +53,7 @@ export default async function Index() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-6 md:ml-0">
         {/* Daily News */}
         <div className="bg-gray-700 text-white p-4 mb-6 rounded-lg">
           <h2 className="font-bold mb-2 flex items-center">
@@ -77,24 +73,22 @@ export default async function Index() {
           <h1 className="text-2xl font-bold mb-4">SDG</h1>
           <div className="bg-indigo-900 p-4 rounded-lg">
             <img
-              src="/island.svg"
+              src="./island.svg"
               alt="SDG Isometric Illustration"
-              className="w-full h-64 object-contain rounded"
-              src={"./island.svg"}
-              alt="SDG Isometric Illustration"
-              style={{ minHeight: "250px", maxHeight: "300px" }}
+              className="w-full object-contain rounded"
+              style={{ minHeight: "200px", maxHeight: "300px" }}
             />
           </div>
         </div>
 
         {/* Module Progress */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
+        <div className="mb-8 overflow-x-auto">
+          <div className="flex justify-between items-center mb-2 min-w-max">
             {["Module", "Module", "Module", "Module", "Module"].map(
               (text, index) => (
                 <div
                   key={index}
-                  className={`text-sm ${
+                  className={`text-sm px-2 ${
                     index === 2 ? "text-blue-500 font-medium" : "text-gray-400"
                   }`}
                 >
@@ -111,7 +105,7 @@ export default async function Index() {
         {/* Current Module */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Current Module</h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {[...Array(6)].map((_, index) => (
               <div
                 key={index}

@@ -2,8 +2,11 @@
 import React, { useState } from "react";
 import { Bell, User, Menu, Check, Lock, PlayCircle } from "lucide-react";
 
+import { useRouter } from "next/navigation";
 export default function Index() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const router = useRouter();
   const modules = [
     {
       title: "Introduction to Zero Hunger",
@@ -160,6 +163,7 @@ export default function Index() {
                 className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
                   module.locked ? "opacity-75" : ""
                 }`}
+                onClick={() => router.push("/quiz")}
               >
                 <div className="p-4 flex items-start">
                   <div
@@ -174,7 +178,7 @@ export default function Index() {
                     {module.title.charAt(0)}
                   </div>
                   <div className="flex-grow">
-                    <h3 className="font-semibold text-lg">{module.title}</h3>
+                    <h3 className="font-semibold text-base">{module.title}</h3>
                     <p className="text-sm text-gray-500 mt-1">
                       {module.subhead}
                     </p>

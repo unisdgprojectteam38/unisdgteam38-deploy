@@ -82,14 +82,27 @@ Try our staging deployment: [LMS Quiz Demo](https://sdg-gamified-lms-it-git-stag
     - **Purpose**: Admin role and permission management.
     - **Key Features**: Admin privilege assignment and revocation.
 
-## Getting Started
+## Clone and run locally
 
-(Add instructions for setting up the project locally, including prerequisites, installation steps, and how to run the development server.)
+1. Clone repo to local
 
-## Contributing
+3. Use `cd` to change into the app's directory
 
-(Add guidelines for contributing to the project, if applicable.)
+   ```bash
+   cd name-of-new-app
+   ```
 
-## License
+4. Rename `.env.local.example` to `.env.local` and update the following:
 
-(Add license information for the project.)
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
+   ```
+
+   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+
+5. You can now run the Next.js local development server:
+
+   ```bash
+   npm run dev
+   ```

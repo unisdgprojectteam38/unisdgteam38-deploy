@@ -1,6 +1,6 @@
 import React from 'react';
 import { InfographicPage } from '@/components/info/InfographicPage';
-import { HeaderData, TargetsData } from '@/types/infographics';
+import { HeaderData, TargetsData, EventsData } from '@/types/infographics';
 import Image from 'next/image';
 import island from '@/public/island.svg';
 import WaterDropScroll from '@/components/info/sdg6/WaterDropScroll';
@@ -76,6 +76,19 @@ const targetsData: TargetsData = {
   iconSrc: "/path-to-your-icon.png",
 };
 
+const eventsData: EventsData = {
+  title: "Events",
+  description: "These events happen annually",
+  events: [
+    {
+      // Input data of the event card here
+    },
+    {
+      // Input data of the event card here
+    }
+  ]
+};
+
 const quizData = {
   title: "Test Your Knowledge on Water Sustainability",
   questions: [
@@ -118,6 +131,7 @@ export default function InfographicExample() {
     <InfographicPage
       headerData={headerData}
       targetsData={targetsData}
+      eventsData={eventsData}
       quizData={quizData}
       gameData={gameData}
       ScrollComponent={WaterDropScroll}

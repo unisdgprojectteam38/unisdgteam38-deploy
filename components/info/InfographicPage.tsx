@@ -5,6 +5,7 @@ import { TargetsSection } from '@/components/info/target/TargetsSection';
 import { QuizSection } from '@/components/info/quiz/QuizSection';
 import { ImageMatchingGame } from '@/components/info/game/image-match/ImageMatchingGame';
 import { Target } from '@/types/infographics';
+import { EventsSection } from './events/EventsSection';
 
 interface QuizQuestion {
   type: "single" | "multiple";
@@ -31,6 +32,13 @@ interface InfographicPageProps {
     targets: Target[];
     iconSrc?: string;
   };
+  eventsData: {
+    title: string;
+    description: string;
+    date: string;
+    events: Event[];
+    imgSrc?: string;
+  }
   quizData?: {
     title: string;
     questions: QuizQuestion[];
@@ -45,6 +53,7 @@ interface InfographicPageProps {
 export const InfographicPage: React.FC<InfographicPageProps> = ({
   headerData,
   targetsData,
+  eventsData,
   quizData,
   gameData,
   ScrollComponent
@@ -55,6 +64,7 @@ export const InfographicPage: React.FC<InfographicPageProps> = ({
         <HeaderSection {...headerData} />
       </div>
       <TargetsSection {...targetsData} />
+      <EventsSection {...eventsData}/>
       {quizData && (
         <div className="my-8">
           <h2 className="text-2xl font-bold mb-4">{quizData.title}</h2>

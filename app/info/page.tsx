@@ -8,12 +8,14 @@ import WaterDropScroll from '@/components/info/sdg6/WaterDropScroll';
 
 const headerData: HeaderData = {
   newsTitle: "Daily News",
-  newsContent: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  newsContent: "The FAO Rome Water Dialogue 2024 will focus on water scarcity in agriculture, a key concern as climate change and growing populations put additional pressure on water resources",
   mainTitle: "06 CLEAN WATER & SANITATION",
   mainSubtitle: "Ensure availability and sustainable management of water and sanitation for all.",
-  backgroundColor: "bg-blue-500",
-  newsBannerColor: "bg-orange-300",
-  illustrationComponent: <Image src={island} alt="Island" width={500} height={500} />  // Specify width and height
+  backgroundColor: "bg-[#0a97d9]",
+  newsBannerColor: "bg-[#fea362]",
+  illustrationComponent: <Image src={island} alt="Island" width={500} height={500} />,  // Specify width and height
+  definitionTitle: "What is 06 Clean Water & Sanitation?",
+  definitionPara: "Clean Water and Sanitation, aims to ensure the availability and sustainable management of water and sanitation for all. 1  This goal recognizes that access to clean water and sanitation is 2  a fundamental human right essential for health, development, and equality."
 };
 
 const targetsData: TargetsData = {

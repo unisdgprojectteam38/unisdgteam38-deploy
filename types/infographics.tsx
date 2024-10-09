@@ -8,6 +8,8 @@ export interface HeaderData {
   backgroundColor?: string;
   newsBannerColor?: string;
   illustrationComponent?: ReactNode;
+  definitionTitle: string;
+  definitionPara: string;
 }
 
 export interface Target {

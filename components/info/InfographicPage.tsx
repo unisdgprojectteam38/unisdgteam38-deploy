@@ -22,6 +22,8 @@ interface InfographicPageProps {
     backgroundColor?: string;
     newsBannerColor?: string;
     illustrationComponent?: React.ReactNode;
+    definitionTitle: string;
+    definitionPara: string;
   };
   targetsData: {
     title: string;

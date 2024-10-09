@@ -1,11 +1,11 @@
-'use client';
-import React from 'react';
-import { HeaderSection } from '@/components/info/header/HeaderSection';
-import { TargetsSection } from '@/components/info/target/TargetsSection';
-import { QuizSection } from '@/components/info/quiz/QuizSection';
-import { ImageMatchingGame } from '@/components/info/game/image-match/ImageMatchingGame';
-import { Target } from '@/types/infographics';
-
+"use client";
+import React from "react";
+import { HeaderSection } from "@/components/info/header/HeaderSection";
+import { TargetsSection } from "@/components/info/target/TargetsSection";
+import { QuizSection } from "@/components/info/quiz/QuizSection";
+import { ImageMatchingGame } from "@/components/info/game/image-match/ImageMatchingGame";
+import { Target } from "@/types/infographics";
+import WaterResourceManagementGame from "@/components/info/game/challenges/Challenges";
 interface QuizQuestion {
   type: "single" | "multiple";
   question: string;
@@ -45,7 +45,7 @@ export const InfographicPage: React.FC<InfographicPageProps> = ({
   targetsData,
   quizData,
   gameData,
-  ScrollComponent
+  ScrollComponent,
 }) => {
   return (
     <div className="infographic-page relative">
@@ -61,9 +61,19 @@ export const InfographicPage: React.FC<InfographicPageProps> = ({
       )}
       {gameData && (
         <div className="my-8">
-          <ImageMatchingGame title={gameData.title} cardPairs={gameData.cardPairs} />
+          <ImageMatchingGame
+            title={gameData.title}
+            cardPairs={gameData.cardPairs}
+          />
         </div>
       )}
+
+      <div className="my-8">
+        <WaterResourceManagementGame
+          title={gameData.title}
+          cardPairs={gameData.cardPairs}
+        />
+      </div>
       {ScrollComponent && <ScrollComponent targetSectionId="header-section" />}
     </div>
   );

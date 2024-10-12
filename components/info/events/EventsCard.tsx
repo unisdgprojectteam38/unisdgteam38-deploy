@@ -19,13 +19,13 @@ export const EventsCard: React.FC<EventsCardProps> = ({ imgSrc, title, date, hre
                     height = {340/1.5}
                     />
             <div className="w-[336px] h-[82px] p-4 flex-col justify-start items-center gap-2 flex">
-                <div className="self-stretch text-center text-black text-xl font-medium font-['Poppins'] leading-normal">{title}</div>
-                <div className="self-stretch text-center text-black text-sm font-normal font-['Poppins'] leading-[18px]">{date}</div>
+                <h3 className="self-stretch text-center text-black text-xl font-medium font-['Poppins'] leading-normal">{title}</h3>
+                <p className="self-stretch text-center text-black text-sm font-normal font-['Poppins'] leading-[18px]">{date}</p>
             </div>
-            <button className="h-8 px-3 py-4 bg-[#CCE0FF] rounded-[3px] justify-center items-center inline-flex 
+            <button className="h-8 px-4 py-4 bg-[#CCE0FF] rounded-full justify-center items-center inline-flex 
                 text-black text-center text-sm font-normal font-['Poppins'] leading-tight 
                 hover:bg-[#85B8FF] hover:text-white">
-                {href && <a href={href}>Learn More</a>}
+                {href && <a href={href} target="_blank" rel="noopener noreferrer">Learn More</a>}
             </button>
     </div>
 );

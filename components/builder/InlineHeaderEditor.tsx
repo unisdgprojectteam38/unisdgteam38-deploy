@@ -1,10 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Label } from '@/components/ui/Label';
 import { Input, Textarea } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { Button } from '@/components/ui/Button';
 import { HeaderData } from '@/types/infographics';
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Upload } from 'lucide-react';
+import Image from 'next/image';
 
 interface InlineHeaderEditorProps {
   initialData: HeaderData;
@@ -13,12 +15,30 @@ interface InlineHeaderEditorProps {
 
 const InlineHeaderEditor: React.FC<InlineHeaderEditorProps> = ({ initialData, onUpdate }) => {
   const [headerData, setHeaderData] = useState<HeaderData>(initialData);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     const newData = { ...headerData, [name]: value };
     setHeaderData(newData);
     onUpdate(newData);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newData = { ...headerData, illustrationComponent: e.target?.result as string };
+        setHeaderData(newData);
+        onUpdate(newData);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -58,6 +78,34 @@ const InlineHeaderEditor: React.FC<InlineHeaderEditorProps> = ({ initialData, on
             onChange={handleInputChange}
             className="text-xl bg-transparent text-white"
             placeholder="Enter main subtitle"
+          />
+        </div>
+        <div className="relative w-1/3">
+          {headerData.illustrationComponent ? (
+            <Image
+              src={headerData.illustrationComponent as string}
+              alt="Header illustration"
+              width={300}
+              height={300}
+              className="rounded-lg"
+            />
+          ) : (
+            <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+              <span className="text-gray-500">No image uploaded</span>
+            </div>
+          )}
+          <Button
+            onClick={triggerFileInput}
+            className="absolute bottom-2 right-2 bg-white text-black p-2 rounded-full"
+          >
+            <Upload size={20} />
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            accept="image/*"
+            className="hidden"
           />
         </div>
       </div>

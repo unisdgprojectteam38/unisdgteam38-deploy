@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from "react";
 
-const SDG6Game = () => {
-  const [cityHealth, setCityHealth] = useState(50);
-  const [resources, setResources] = useState(100);
-  const [day, setDay] = useState(1);
-  const [currentEvent, setCurrentEvent] = useState(null);
-  const [gameState, setGameState] = useState("intro"); // 'intro', 'playing', 'gameOver'
+interface Option {
+  text: string;
+  resourceCost: number;
+  healthEffect: number;
+}
 
-  const events = [
+interface Event {
+  title: string;
+  description: string;
+  icon: string;
+  options: Option[];
+}
+interface SDG6GameProps {
+  title: string;
+}
+
+const SDG6Game: React.FC = () => {
+  const [cityHealth, setCityHealth] = useState<number>(50);
+  const [resources, setResources] = useState<number>(100);
+  const [day, setDay] = useState<number>(1);
+  const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
+  const [gameState, setGameState] = useState<string>("intro"); // 'intro', 'playing', 'gameOver'
+
+  const events: Event[] = [
     {
       title: "Water Scarcity",
       description: "The city is facing a severe water shortage.",
@@ -96,7 +112,7 @@ const SDG6Game = () => {
     }
   }, [gameState, cityHealth, resources, currentEvent]);
 
-  const handleOption = (option) => {
+  const handleOption = (option: Option) => {
     setCityHealth(Math.min(100, Math.max(0, cityHealth + option.healthEffect)));
     setResources(resources - option.resourceCost);
     setDay(day + 1);
@@ -111,7 +127,7 @@ const SDG6Game = () => {
     setGameState("playing");
   };
 
-  const IntroScreen = () => (
+  const IntroScreen: React.FC = () => (
     <div className="text-center p-6">
       <h2 className="text-2xl font-bold mb-4">
         Welcome to Water City Manager!
@@ -130,7 +146,7 @@ const SDG6Game = () => {
     </div>
   );
 
-  const PlayingScreen = () => (
+  const PlayingScreen: React.FC = () => (
     <div className="p-6">
       <div className="flex justify-between mb-4">
         <div>Day: {day}</div>
@@ -169,7 +185,7 @@ const SDG6Game = () => {
     </div>
   );
 
-  const GameOverScreen = () => (
+  const GameOverScreen: React.FC = () => (
     <div className="text-center p-6">
       <h3 className="text-2xl font-bold mb-4">Game Over</h3>
       <p className="mb-4">You managed the city for {day} days.</p>

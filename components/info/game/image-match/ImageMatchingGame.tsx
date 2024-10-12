@@ -15,10 +15,7 @@ interface FlashcardGameProps {
   cardPairs: { id: number; concept: string; details: string }[];
 }
 
-export const FlashcardGame: React.FC<FlashcardGameProps> = ({
-  title,
-  cardPairs,
-}) => {
+const FlashcardGame: React.FC<FlashcardGameProps> = ({ title, cardPairs }) => {
   const [cards, setCards] = useState<CardData[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
 
@@ -113,49 +110,4 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
   );
 };
 
-// Example Usage
-const exampleCardPairs = [
-  {
-    id: 1,
-    concept: "💧 Clean Water Access",
-    details: "Ensure availability and sustainable management of water for all.",
-  },
-  {
-    id: 2,
-    concept: "🌊 Water Quality",
-    details:
-      "Improve water quality by reducing pollution and eliminating dumping.",
-  },
-  {
-    id: 3,
-    concept: "💡 Water Use Efficiency",
-    details: "Increase water-use efficiency across all sectors.",
-  },
-  {
-    id: 4,
-    concept: "🌳 Ecosystem Protection",
-    details:
-      "Protect and restore water-related ecosystems, such as forests and rivers.",
-  },
-  {
-    id: 5,
-    concept: "🛋️ Community Participation",
-    details:
-      "Support and strengthen the participation of communities in water management.",
-  },
-  {
-    id: 6,
-    concept: "🌫️ Water Scarcity",
-    details:
-      "Address water scarcity and ensure sufficient supply for everyone.",
-  },
-];
-
-export default function App() {
-  return (
-    <FlashcardGame
-      title="SDG 6: Clean Water and Sanitation"
-      cardPairs={exampleCardPairs}
-    />
-  );
-}
+export default FlashcardGame;

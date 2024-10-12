@@ -168,20 +168,69 @@ export const InfographicPage: React.FC<InfographicPageProps> = ({
         <SDG6Carousel
           targets={[
             {
-              title: "Target 6.1: Safe and Affordable Drinking Water",
+              id: "6.1",
+              title: "Safe and Affordable Drinking Water",
               description:
                 "By 2030, achieve universal and equitable access to safe and affordable drinking water for all.",
-              keywords: [
-                "safe drinking water",
-                "affordable",
-                "universal access",
-              ],
-              action: { link: "https://example.com/target-6-1-action" },
             },
-            // ... other targets
+            {
+              id: "6.2",
+              title:
+                "End Open Defecation and Provide Access to Sanitation and Hygiene",
+              description:
+                "By 2030, achieve access to adequate and equitable sanitation and hygiene for all and end open defecation, paying special attention to the needs of women and girls and those in vulnerable situations.",
+            },
+            {
+              id: "6.3",
+              title:
+                "Improve Water Quality, Wastewater Treatment and Safe Reuse",
+              description:
+                "By 2030, improve water quality by reducing pollution, eliminating dumping and minimizing release of hazardous chemicals and materials, halving the proportion of untreated wastewater and substantially increasing recycling and safe reuse globally.",
+            },
+            {
+              id: "6.4",
+              title:
+                "Increase Water-Use Efficiency and Ensure Freshwater Supplies",
+              description:
+                "By 2030, substantially increase water-use efficiency across all sectors and ensure sustainable withdrawals and supply of freshwater to address water scarcity and substantially reduce the number of people suffering from water scarcity.",
+            },
+            {
+              id: "6.5",
+              title: "Implement Integrated Water Resources Management",
+              description:
+                "By 2030, implement integrated water resources management at all levels, including through transboundary cooperation as appropriate.",
+            },
+            {
+              id: "6.6",
+              title: "Protect and Restore Water-Related Ecosystems",
+              description:
+                "By 2020, protect and restore water-related ecosystems, including mountains, forests, wetlands, rivers, aquifers and lakes.",
+            },
+            {
+              id: "6.7",
+              title:
+                "Expand Water and Sanitation Support to Developing Countries",
+              description:
+                "By 2030, expand international cooperation and capacity-building support to developing countries in water- and sanitation-related activities and programmes, including water harvesting, desalination, water efficiency, wastewater treatment, recycling and reuse technologies.",
+            },
+            {
+              id: "6.8",
+              title:
+                "Support Local Engagement in Water and Sanitation Management",
+              description:
+                "Support and strengthen the participation of local communities in improving water and sanitation management.",
+            },
           ]}
-          icons={["🚰", "🚽", "💧", "🌊", "🌿", "🏞️", "🤝", "👥"]}
-          progressData={[70, 60, 50, 40, 30, 20, 10, 5]}
+          icons={{
+            "6.1": "💧",
+            "6.2": "🚽",
+            "6.3": "🧪",
+            "6.4": "🚰",
+            "6.5": "🌊",
+            "6.6": "🏞️",
+            "6.7": "🧑‍🤝",
+            "6.8": "🤝",
+          }}
         />
       </div>
       <TargetsSection {...targetsData} />
@@ -194,22 +243,52 @@ export const InfographicPage: React.FC<InfographicPageProps> = ({
       {gameData && (
         <div className="my-8">
           <ImageMatchingGame
-            title={gameData.title}
-            cardPairs={gameData.cardPairs}
+            title="SDG 6: Clean Water and Sanitation"
+            cardPairs={[
+              {
+                id: 1,
+                concept: "💧 Clean Water Access",
+                details:
+                  "Ensure availability and sustainable management of water for all.",
+              },
+              {
+                id: 2,
+                concept: "🌊 Water Quality",
+                details:
+                  "Improve water quality by reducing pollution and eliminating dumping.",
+              },
+              {
+                id: 3,
+                concept: "💡 Water Use Efficiency",
+                details: "Increase water-use efficiency across all sectors.",
+              },
+              {
+                id: 4,
+                concept: "🌳 Ecosystem Protection",
+                details:
+                  "Protect and restore water-related ecosystems, such as forests and rivers.",
+              },
+              {
+                id: 5,
+                concept: "🛋️ Community Participation",
+                details:
+                  "Support and strengthen the participation of communities in water management.",
+              },
+              {
+                id: 6,
+                concept: "🌫️ Water Scarcity",
+                details:
+                  "Address water scarcity and ensure sufficient supply for everyone.",
+              },
+            ]}
           />
         </div>
       )}
       <div className="my-8">
-        <WaterResourceManagementGame
-          title={gameData.title}
-          cardPairs={gameData.cardPairs}
-        />
+        <WaterResourceManagementGame />
       </div>
       <div className="my-8">
-        <ScaleTheServices
-          title={gameData.title}
-          cardPairs={gameData.cardPairs}
-        />
+        <ScaleTheServices />
       </div>
       {ScrollComponent && <ScrollComponent targetSectionId="header-section" />}
     </div>

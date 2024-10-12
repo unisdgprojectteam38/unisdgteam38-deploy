@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
 
-const ScaleTheServices = () => {
+interface Service {
+  name: string;
+  current: number;
+  target: number;
+  icon: string;
+  color: string;
+}
+
+const ScaleTheServices: React.FC = () => {
   const maxValue = 6;
 
-  const initialServices = [
+  const initialServices: Service[] = [
     {
       name: "Drinking Water",
       current: 1,
@@ -22,14 +30,14 @@ const ScaleTheServices = () => {
       name: "Hygiene",
       current: 1,
       target: 3,
-      icon: "🧼",
+      icon: "🧤",
       color: "bg-yellow-500",
     },
   ];
 
-  const [services, setServices] = useState(initialServices);
-  const [gameState, setGameState] = useState("intro"); // 'intro', 'playing', 'celebration'
-  const [animatingService, setAnimatingService] = useState(null);
+  const [services, setServices] = useState<Service[]>(initialServices);
+  const [gameState, setGameState] = useState<string>("intro"); // 'intro', 'playing', 'celebration'
+  const [animatingService, setAnimatingService] = useState<number | null>(null);
 
   useEffect(() => {
     if (
@@ -45,7 +53,7 @@ const ScaleTheServices = () => {
     setGameState("playing");
   };
 
-  const adjustService = (index, amount) => {
+  const adjustService = (index: number, amount: number) => {
     setAnimatingService(index);
     const updatedServices = [...services];
     const newValue = Math.max(
@@ -73,7 +81,10 @@ const ScaleTheServices = () => {
     requestAnimationFrame(animateStep);
   };
 
-  const ServiceBar = ({ service, index }) => (
+  const ServiceBar: React.FC<{ service: Service; index: number }> = ({
+    service,
+    index,
+  }) => (
     <div className="flex flex-col items-center w-1/3 px-4">
       <div className="text-4xl mb-4">{service.icon}</div>
       <div className="font-bold text-xl mb-2">{service.name}</div>
@@ -123,7 +134,7 @@ const ScaleTheServices = () => {
     </div>
   );
 
-  const IntroPopup = () => (
+  const IntroPopup: React.FC = () => (
     <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">
         Welcome to Scale the Services: SDG 6 Challenge!
@@ -151,7 +162,7 @@ const ScaleTheServices = () => {
     </div>
   );
 
-  const CelebrationPopup = () => (
+  const CelebrationPopup: React.FC = () => (
     <div className="bg-white border-2 border-green-500 p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
       <h2 className="text-3xl font-bold mb-4 text-center">
         🎉 Congratulations! 🎉

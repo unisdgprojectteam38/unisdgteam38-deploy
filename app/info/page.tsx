@@ -81,14 +81,19 @@ const eventsData: EventsData = {
   description: "These events happen annually",
   events: [
     {
-      // Input data of the event card here
+      imgSrc : "/seventeenxmelbourne2024-graphic.png",
+      title : "SEVENTEENx Melbourne",
+      date: "20 November 2024",
+      href : "https://events.humanitix.com/seventeenx-melbourne-2024?utm_medium=paid&utm_source=ig&utm_id=120210902296870575&utm_content=120210902297030575&utm_term=120210902296990575&utm_campaign=120210902296870575&fbclid=PAZXh0bgNhZW0BMAABpqJq2jsqXg9WMf6ShxMKckRldAGZzXndlEQWf3652pvMMjXKtlnkv6-TYA_aem_MVrVNgUUpVtFd2C4GUt34Q"
+    },
+    {
+      // Event Card Data
       imgSrc : "/worldwaterday-graphic.png",
       title : "World Water Day",
       date : "22 March 2025",
       href : "https://www.un.org/en/observances/water-day"
     },
     {
-      // Input data of the event card here
       imgSrc : "/worldoceanday-graphic.png",
       title : "World Ocean Day",
       date: "8 June 2025",

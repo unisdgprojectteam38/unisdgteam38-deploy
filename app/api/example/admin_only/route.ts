@@ -15,6 +15,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const role = await getUserRole(supabase);
+
+  // Use the role as needed
+  if (role !== "admin") {
+    return NextResponse.json(
+      { error: "Unauthorized. You need to be an admin" },
+      { status: 401 }
+    );
+  }
+
   // Fetch all SDGs from the database
   const { data, error } = await supabase
     .from("sdgs")
@@ -62,17 +72,13 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-
+  // examplel insertion. DO NOT UNCOMMENT
   // Insert the new SDG into the database
-  const { data, error } = await supabase
-    .from("sdgs")
-    .insert({ title, description, sdg_display_id })
-    .select()
-    .single();
+  //   const { data, error } = await supabase
+  //     .from("sdgs")
+  //     .insert({ title, description, sdg_display_id })
+  //     .select()
+  //     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json({}, { status: 201 });
 }

@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(data, { status: 200 });
 }
 
-// Existing POST method here...
-
 export async function POST(request: NextRequest) {
+  // Parse the request body
+  const { title, descriptio, sdg_display_id } = await request.json();
   const supabase = createClient();
 
   // Check authentication
@@ -44,17 +44,6 @@ export async function POST(request: NextRequest) {
   }
   const role = await getUserRole(supabase);
 
-  // Use the role as needed
-  if (role !== "admin") {
-    return NextResponse.json(
-      { error: "Unauthorized. You need to be an admin" },
-      { status: 401 }
-    );
-  }
-
-  // Parse the request body
-  const { title, descriptio, sdg_display_id } = await request.json();
-
   // Validate input
   if (!title || !description || !sdg_display_id) {
     return NextResponse.json(
@@ -63,16 +52,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // examplel insertion. DO NOT UNCOMMENT
   // Insert the new SDG into the database
-  const { data, error } = await supabase
-    .from("sdgs")
-    .insert({ title, description, sdg_display_id })
-    .select()
-    .single();
+  //   const { data, error } = await supabase
+  //     .from("sdgs")
+  //     .insert({ title, description, sdg_display_id })
+  //     .select()
+  //     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  //   if (error) {
+  //     return NextResponse.json({ error: error.message }, { status: 500 });
+  //   }
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json({}, { status: 201 });
 }

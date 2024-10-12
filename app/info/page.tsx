@@ -77,14 +77,22 @@ const targetsData: TargetsData = {
 };
 
 const eventsData: EventsData = {
-  title: "Events",
+  title: "Upcoming Events",
   description: "These events happen annually",
   events: [
     {
       // Input data of the event card here
+      imgSrc : "/worldwaterday-graphic.png",
+      title : "World Water Day",
+      date : "22 March 2025",
+      href : "https://www.un.org/en/observances/water-day"
     },
     {
       // Input data of the event card here
+      imgSrc : "/worldoceanday-graphic.png",
+      title : "World Ocean Day",
+      date: "8 June 2025",
+      href : "https://worldoceanday.org/"
     }
   ]
 };

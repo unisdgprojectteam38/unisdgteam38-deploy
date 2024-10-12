@@ -25,12 +25,17 @@ export interface TargetsData {
   iconSrc?: string;
 }
 
+export interface Event {
+  imgSrc: string,
+  title: string,
+  date: string,
+  href?: string
+}
+
 export interface EventsData {
   title: string;
   description: string;
-  date: string;
   events: Event[];
-  imgSrc?: string;
 }
 
 interface QuizQuestion {

@@ -5,6 +5,7 @@ import { TargetsSection } from '@/components/info/target/TargetsSection';
 import { QuizSection } from '@/components/info/quiz/QuizSection';
 import { ImageMatchingGame } from '@/components/info/game/image-match/ImageMatchingGame';
 import { Target } from '@/types/infographics';
+import { Event } from '@/types/infographics';
 import { EventsSection } from './events/EventsSection';
 
 interface QuizQuestion {
@@ -35,9 +36,7 @@ interface InfographicPageProps {
   eventsData: {
     title: string;
     description: string;
-    date: string;
     events: Event[];
-    imgSrc?: string;
   }
   quizData?: {
     title: string;

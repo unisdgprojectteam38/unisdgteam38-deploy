@@ -1,5 +1,6 @@
 import React from 'react';
 import EventsCard from './EventsCard';
+import { Event } from '@/types/infographics';
 import { title } from 'process';
 
 interface EventsSectionProps {
@@ -22,18 +23,16 @@ export const EventsSection: React.FC<EventsSectionProps> = ({
         </div>
       {/* Event Card Container  */}
       <div className="justify-center items-center gap-8 inline-flex">
-        <EventsCard 
-              imgSrc = "/worldwaterday-graphic.png"
-              title = "World Water Day"
-              date = "22 March 2025"
-              href = "https://www.un.org/en/observances/water-day"
-        />
-        <EventsCard 
-              imgSrc = "/worldoceanday-graphic.png"
-              title = "World Ocean Day"
-              date = "8 June 2025"
-              href = "https://worldoceanday.org/"
-        />
+        {events.map((event)=>(
+          <div key={event.title} className="justify-center items-center gap-8 inline-flex">
+            <EventsCard 
+              imgSrc = {event.imgSrc}
+              title= {event.title}
+              date = {event.date}
+              href= {event.href}
+            />
+          </div>
+        ))}
       </div>
     </section>  
   );

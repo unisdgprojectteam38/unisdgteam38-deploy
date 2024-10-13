@@ -4,13 +4,25 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Lock, ChevronRight } from "lucide-react";
 
+// Define types for SDG and UserSdgProgress
+interface SDG {
+  sdg_id: number;
+  sdg_display_id: string;
+  title: string;
+}
+
+interface UserSdgProgress {
+  sdg_id: number;
+  progress: number;
+}
+
 export default function Home() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [user, setUser] = useState(null);
-  const [sdgs, setSdgs] = useState([]);
-  const [userSdgProgress, setUserSdgProgress] = useState([]);
+  const [user, setUser] = useState<any>(null);
+  const [sdgs, setSdgs] = useState<SDG[]>([]);
+  const [userSdgProgress, setUserSdgProgress] = useState<UserSdgProgress[]>([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -31,18 +43,18 @@ export default function Home() {
   useEffect(() => {
     const fetchSdgs = async () => {
       if (user) {
-        const { data: sdgs, error } = await supabase.from("sdgs").select("*");
+        const { data, error } = await supabase.from("sdgs").select("*");
         if (error) {
           console.error("Error fetching SDGs:", error);
         } else {
-          setSdgs(sdgs);
+          setSdgs(data as SDG[]);
         }
       }
     };
 
     const fetchUserSdgProgress = async () => {
       if (user) {
-        const { data: progress, error } = await supabase
+        const { data, error } = await supabase
           .from("usersdgprogress")
           .select("*")
           .eq("user_id", user.id);
@@ -50,7 +62,7 @@ export default function Home() {
         if (error) {
           console.error("Error fetching user SDG progress:", error);
         } else {
-          setUserSdgProgress(progress);
+          setUserSdgProgress(data as UserSdgProgress[]);
         }
       }
     };
@@ -59,12 +71,12 @@ export default function Home() {
     fetchUserSdgProgress();
   }, [user]);
 
-  const getSdgProgress = (sdgId) => {
+  const getSdgProgress = (sdgId: number): number => {
     const progress = userSdgProgress.find((p) => p.sdg_id === sdgId);
     return progress ? progress.progress : 0;
   };
 
-  const getNextAvailableSdg = () => {
+  const getNextAvailableSdg = (): SDG | undefined => {
     return sdgs.find((sdg) => getSdgProgress(sdg.sdg_id) < 100) || sdgs[0];
   };
 
@@ -92,8 +104,6 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-grow p-4">
         <div className="w-full max-w-2xl mx-auto">
-          {/* Featured SDG */}
-
           {/* SDG List */}
           <div className="bg-white rounded-3xl p-6 shadow-md">
             <h2 className="text-xl font-semibold mb-4 border-b pb-2">SDGs</h2>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { WaterContainer } from "@/components/ui/watercontainer/WaterContainer";
 import { Player } from "@lottiefiles/react-lottie-player";
 import {
@@ -7,13 +7,12 @@ import {
   TextSection,
   ResourceManagerGameSection,
 } from "@/types/sections";
-import ResourceManagerGame from "./sections/resourceManagerGame/ResourceManagerGame";
 import CelebrationAnimation from "@/public/celebrate.json";
 import QuizSectionComponent from "./sections/quiz/Quiz";
 import TextSectionComponent from "./sections/text/Text";
 import ResourceManagerGameComponent from "./sections/resourceManagerGame/ResourceManagerGame";
 import FlashcardSectionComponent from "./sections/flashcards/Flashcards";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface ModulePlayerProps {
   sections: Section[];
@@ -28,13 +27,6 @@ interface Module {
   subtitle?: string;
 }
 
-const ResourceManagerGameSection: React.FC<{
-  section: ResourceManagerGameSection;
-}> = ({ section }) => {
-  return <ResourceManagerGame />;
-};
-
-// Section Component Map
 const SECTION_COMPONENTS: Record<
   Section["type"],
   React.FC<{ section: Section }>
@@ -45,43 +37,46 @@ const SECTION_COMPONENTS: Record<
   flashcards: FlashcardSectionComponent,
 };
 
-// ModulePlayer Component
 const ModulePlayer: React.FC<ModulePlayerProps> = ({
   sections,
   module,
   onComplete,
   moduleTitle,
 }) => {
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [completedCount, setCompletedCount] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const currentSection = sections[currentSectionIndex];
-  const SectionComponent = SECTION_COMPONENTS[currentSection.type];
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setProgress(((currentSectionIndex + 1) / sections.length) * 100);
-  }, [currentSectionIndex, sections.length]);
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+        const newProgress = (scrollTop / (scrollHeight - clientHeight)) * 100;
+        setProgress(newProgress);
+      }
+    };
 
-  const handleSectionComplete = () => {
-    setCompletedCount((prev) => prev + 1);
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+
+  const handleSectionComplete = (index: number) => {
     setShowAnimation(true);
-
     setTimeout(() => {
       setShowAnimation(false);
-      setIsTransitioning(true);
-
-      setTimeout(() => {
-        if (currentSectionIndex < sections.length - 1) {
-          setCurrentSectionIndex(currentSectionIndex + 1);
-        } else {
-          onComplete();
-        }
-        setIsTransitioning(false);
-      }, 0);
     }, 2000);
+
+    if (index === sections.length - 1) {
+      onComplete();
+    }
   };
 
   return (
@@ -156,36 +151,40 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
         </header>
 
         {/* Main Content */}
-        <main className="flex-grow bg-[#F6F7FB]">
-          <div className="max-w-[960px] mx-auto px-8 pt-12 pb-4 flex gap-12">
-            {/* Water Container on the left */}
-            <div className="flex-shrink-0">
-              <WaterContainer
-                completed={completedCount}
-                total={sections.length}
-              />
-            </div>
+        <main className="flex-grow bg-[#F6F7FB] flex">
+          {/* Water Container on the left */}
+          <div className="flex-shrink-0 p-8">
+            <WaterContainer completed={progress} total={100} />
+          </div>
 
-            {/* Main Player Content */}
-            <div className="flex-grow">
-              <AnimatePresence mode="wait">
+          {/* Main Player Content */}
+          <div
+            ref={containerRef}
+            className="flex-grow overflow-y-auto p-8"
+            style={{ height: "calc(100vh - 64px)" }}
+          >
+            {sections.map((section, index) => {
+              const SectionComponent = SECTION_COMPONENTS[section.type];
+              return (
                 <motion.div
-                  key={currentSectionIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="mb-12"
                 >
-                  {/* Render Section Component */}
+                  <h2 className="text-2xl font-bold mb-4">
+                    Section {index + 1}: {section.title}
+                  </h2>
                   <SectionComponent
                     section={{
-                      ...currentSection,
-                      onComplete: handleSectionComplete,
+                      ...section,
+                      onComplete: () => handleSectionComplete(index),
                     }}
                   />
                 </motion.div>
-              </AnimatePresence>
-            </div>
+              );
+            })}
           </div>
         </main>
       </div>

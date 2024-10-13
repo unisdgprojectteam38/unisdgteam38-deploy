@@ -4,6 +4,30 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { CheckCircle, ChevronRight, Lock } from "lucide-react";
 
+// Define types
+interface User {
+  id: string;
+}
+
+interface SDG {
+  sdg_id: string;
+  sdg_display_id: string;
+  title: string;
+}
+
+interface Module {
+  module_id: string;
+  title: string;
+  subtitle?: string;
+  sdg_id: string;
+}
+
+interface UserModuleProgress {
+  user_id: string;
+  module_id: string;
+  progress: 'todo' | 'doing' | 'done';
+}
+
 const RaindropSVG = () => (
   <svg className="Hero6-symbol" viewBox="0 0 512 512" fill="white">
     <path d="M414.21,226.014L256,0L97.791,226.014c-65.493,93.56-29.274,224.629,75.837,269.286C198.933,506.053,226.772,512,256,512s57.067-5.947,82.373-16.699C443.484,450.643,479.701,319.574,414.21,226.014z" />
@@ -18,11 +42,11 @@ export default function SdgDetail({
   const router = useRouter();
   const supabase = createClient();
 
-  const [user, setUser] = useState(null);
-  const [sdg, setSdg] = useState(null);
-  const [modules, setModules] = useState([]);
-  const [userModuleProgress, setUserModuleProgress] = useState([]);
-  const [featuredModule, setFeaturedModule] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [sdg, setSdg] = useState<SDG | null>(null);
+  const [modules, setModules] = useState<Module[]>([]);
+  const [userModuleProgress, setUserModuleProgress] = useState<UserModuleProgress[]>([]);
+  const [featuredModule, setFeaturedModule] = useState<Module | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,7 +56,7 @@ export default function SdgDetail({
       if (!user) {
         router.push("/login");
       } else {
-        setUser(user);
+        setUser(user as User);
       }
     };
 
@@ -42,44 +66,42 @@ export default function SdgDetail({
   useEffect(() => {
     const fetchData = async () => {
       if (user) {
-        const { data: sdg } = await supabase
+        const { data: sdgData } = await supabase
           .from("sdgs")
           .select("*")
           .eq("sdg_id", slug)
           .single();
-        setSdg(sdg);
+        setSdg(sdgData as SDG);
 
         const { data: modulesData } = await supabase
           .from("module")
           .select("*")
           .eq("sdg_id", slug)
           .order("module_id", { ascending: true });
-        setModules(modulesData);
-        setFeaturedModule(modulesData[0]);
+        setModules(modulesData as Module[]);
+        setFeaturedModule(modulesData?.[0] as Module || null);
 
         const { data: progress } = await supabase
           .from("usermoduleprogress")
           .select("*")
           .eq("user_id", user.id);
-        setUserModuleProgress(progress);
+        setUserModuleProgress(progress as UserModuleProgress[]);
       }
     };
 
     fetchData();
   }, [user, supabase, slug]);
 
-  const getModuleStatus = (moduleId, index) => {
+  const getModuleStatus = (moduleId: string, index: number): 'todo' | 'doing' | 'done' | 'locked' => {
     const progress = userModuleProgress.find((p) => p.module_id === moduleId);
     if (progress) {
       return progress.progress;
     }
 
-    // If it's the first module, always return 'todo'
     if (index === 0) {
       return "todo";
     }
 
-    // Check if the previous module is completed
     const prevModuleCompleted =
       index > 0 &&
       userModuleProgress.some(
@@ -87,19 +109,19 @@ export default function SdgDetail({
           p.module_id === modules[index - 1].module_id && p.progress === "done"
       );
 
-    // If the previous module is completed, this module should be 'todo', otherwise 'locked'
     return prevModuleCompleted ? "todo" : "locked";
   };
 
   const handleContinue = () => {
     const nextModule = modules.find(
-      (module, index) =>
-        getModuleStatus(module.module_id, index) === "todo" ||
-        getModuleStatus(module.module_id, index) === "doing"
+      (module, index) => {
+        const status = getModuleStatus(module.module_id, index);
+        return status === "todo" || status === "doing";
+      }
     );
     if (nextModule) {
       router.push(`/play/${nextModule.module_id}`);
-    } else {
+    } else if (modules.length > 0) {
       router.push(`/play/${modules[0].module_id}`);
     }
   };

@@ -4,8 +4,14 @@ import Wave from "react-wavify";
 import Image from "next/image";
 import Waterfall from "@/public/waterfall.svg";
 
+interface WaterContainerProps {
+  completed: number;
+  total: number;
+  displayMode?: "percentage" | "fraction";
+}
+
 // Main WaterContainer Component
-export const WaterContainer = ({
+export const WaterContainer: React.FC<WaterContainerProps> = ({
   completed,
   total,
   displayMode = "percentage",
@@ -91,10 +97,10 @@ export const WaterContainer = ({
 };
 
 // Wrapper Component to manage completed state
-const WaterContainerWrapper = () => {
+const WaterContainerWrapper: React.FC = () => {
   const total = 5;
   const [completed, setCompleted] = useState(0); // Start with 0/5
-  const [displayMode, setDisplayMode] = useState("fraction");
+  const [displayMode, setDisplayMode] = useState<"fraction" | "percentage">("fraction");
 
   const incrementCompleted = () => {
     setCompleted((prev) => (prev < total ? prev + 1 : total));

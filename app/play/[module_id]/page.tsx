@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import ModulePlayer from "@/components/modulePlayer/ModulePlayer";
+import { Section } from "@/types/sections"; // Import the Section type from your types file
 
 interface PlayModuleProps {
   params: {
@@ -21,14 +22,6 @@ interface Module {
   sdg_id: number;
 }
 
-interface Section {
-  section_id: string;
-  order_id: number;
-  title: string;
-  section_type: "text" | "quiz" | "resourceManagerGame";
-  data: Record<string, any>;
-}
-
 const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   const router = useRouter();
   const supabase = createClient();
@@ -39,7 +32,6 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
 
-  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       const {
@@ -54,7 +46,6 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
     fetchUserData();
   }, [supabase, router]);
 
-  // Fetch module and section data
   useEffect(() => {
     const fetchModuleAndSections = async () => {
       if (user) {
@@ -76,13 +67,12 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
 
           if (sectionsError) throw sectionsError;
 
-          // Map sections to match the required structure
           setSections(
             sectionsData.map((section: any) => ({
               id: section.section_id,
               title: section.title,
               order_id: section.order_id,
-              type: section.section_type,
+              type: section.section_type as Section['type'],
               data: section.data,
               onComplete: () =>
                 console.log(
@@ -93,10 +83,10 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           setIsLoading(false);
         } catch (error) {
           console.error("Error fetching data:", error);
+          setIsLoading(false);
         }
       }
     };
-
     fetchModuleAndSections();
   }, [user, module_id, supabase]);
 
@@ -107,9 +97,8 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           user_id: user.id,
           module_id: module.module_id,
           progress: "done",
-          last_updated: new Date(),
+          last_updated: new Date().toISOString(),
         });
-
         if (error) throw error;
         console.log("Progress updated successfully");
         setShowCompletionOverlay(true);
@@ -123,7 +112,6 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
     }
   };
 
-  // Render loading state until data is available
   if (isLoading || !module || sections.length === 0) {
     return <div>Loading...</div>;
   }
@@ -141,13 +129,14 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
         </div>
       )}
       <ModulePlayer
-        module={{
+        modules={{
           module_id: module.module_id,
           title: module.title,
           subtitle: module.subtitle ?? "",
         }}
         sections={sections}
         onComplete={handleMarkAsComplete}
+        moduleTitle={module.title}
       />
     </div>
   );

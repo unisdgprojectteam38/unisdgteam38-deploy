@@ -1,11 +1,13 @@
 import { ReactNode } from 'react';
 
-
 export interface Section {
   id: string;
-  type: 'portrait3Horizontal' | 'mediumLengthHeading' | 'quizSection'; // Added 'quizSection'
+  type: 'portrait3Horizontal' | 'mediumLengthHeading' | 'quizSection' | 'quiz' | 'text' | 'resourceManagerGame' | 'flashcards';
   title: string;
   content?: any;
+  order_id: number;
+  data: any;
+  onComplete: () => void;
 }
 
 export interface Target {
@@ -34,8 +36,6 @@ export interface EventsData {
   events: Event[];
 }
 
-
-
 export interface HeaderData {
   newsTitle: string;
   newsContent: string;
@@ -44,8 +44,9 @@ export interface HeaderData {
   backgroundColor?: string;
   newsBannerColor?: string;
   illustrationComponent?: ReactNode | string;
+  definitionTitle: string;
+  definitionPara: string;
 }
-
 
 export interface QuizQuestion {
   type: "single" | "multiple";

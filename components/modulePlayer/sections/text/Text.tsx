@@ -1,9 +1,8 @@
 import React from "react";
-import { TextSectionProps } from "@/types/sections"; // Import the Section type
+import { TextSection } from "@/types/sections"; // Import the TextSection type
 
-const TextSectionComponent: React.FC<TextSectionProps> = ({ section }) => {
+const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) => {
   const { data, onComplete } = section;
-
   return (
     <div
       className="bg-white rounded-lg shadow-lg p-8 flex flex-col justify-between min-h-[468px]"
@@ -43,7 +42,6 @@ const TextSectionComponent: React.FC<TextSectionProps> = ({ section }) => {
           {data.content}
         </p>
       </div>
-
       <button
         onClick={onComplete}
         className="w-full py-3 rounded-md text-lg font-semibold bg-blue-500 text-white hover:bg-blue-600"

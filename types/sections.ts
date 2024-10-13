@@ -1,5 +1,4 @@
-// sections.ts
-
+// types/sections.ts
 export interface BaseSection {
   id: string;
   title: string;
@@ -41,4 +40,4 @@ export type Section =
   | QuizSection
   | TextSection
   | ResourceManagerGameSection
-  | FlashcardSection;
+  | FlashcardGameSection;

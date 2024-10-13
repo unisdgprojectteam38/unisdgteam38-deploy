@@ -1,5 +1,7 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
+import NewsIcon from '@/public/Icon-Daily-News.svg';
 
 interface HeaderSectionProps {
   newsTitle: string;
@@ -18,8 +20,8 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   newsContent,
   mainTitle,
   mainSubtitle,
-  backgroundColor = "bg-blue-500",
-  newsBannerColor = "bg-orange-300",
+  backgroundColor = "bg-[#0a97d9]",
+  newsBannerColor = "bg-[#fea362]",
   illustrationComponent,
   definitionTitle,
   definitionPara,
@@ -28,13 +30,13 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
     <section className={`${backgroundColor} p-8`}>
 
       {/* News Alert Bar */}
-      <div className={`${newsBannerColor} flex flex-row p-4 rounded-lg mb-8`}>
+      <div className={`${newsBannerColor} flex flex-row p-4 rounded-lg mb-8 gap-3`}>
         <div className="h-[87px] flex items-start">
-          <AlertTriangle className="text-black mr-2" />
+          <Image src={NewsIcon} alt='news icon' width={48} height={48}/>
         </div>
         <div className="h-[87px] flex-col justify-start items-start gap-3 inline-flex">
-          <h2 className="text-[#172b4d] text-2xl font-medium font-['Poppins'] leading-7">{newsTitle}</h2>
-          <p className="h-[47px] text-[#172b4d] text-base font-normal font-['Poppins'] leading-tight">{newsContent}</p>
+          <h2 className="text-black text-2xl font-medium font-['Poppins'] leading-7">{newsTitle}</h2>
+          <p className="h-[47px] text-black text-base font-normal font-['Poppins'] leading-tight">{newsContent}</p>
         </div>
         
       </div>

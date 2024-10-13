@@ -1,6 +1,6 @@
 import React from 'react';
 import { InfographicPage } from '@/components/info/InfographicPage';
-import { HeaderData, TargetsData } from '@/types/infographics';
+import { HeaderData, TargetsData, EventsData } from '@/types/infographics';
 import Image from 'next/image';
 import island from '@/public/island.svg';
 import WaterDropScroll from '@/components/info/sdg6/WaterDropScroll';
@@ -8,12 +8,14 @@ import WaterDropScroll from '@/components/info/sdg6/WaterDropScroll';
 
 const headerData: HeaderData = {
   newsTitle: "Daily News",
-  newsContent: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  newsContent: "The FAO Rome Water Dialogue 2024 will focus on water scarcity in agriculture, a key concern as climate change and growing populations put additional pressure on water resources",
   mainTitle: "06 CLEAN WATER & SANITATION",
   mainSubtitle: "Ensure availability and sustainable management of water and sanitation for all.",
-  backgroundColor: "bg-blue-500",
-  newsBannerColor: "bg-orange-300",
-  illustrationComponent: <Image src={island} alt="Island" width={500} height={500} />  // Specify width and height
+  backgroundColor: "bg-[#0a97d9]",
+  newsBannerColor: "bg-[#fea362]",
+  illustrationComponent: <Image src={island} alt="Island" width={500} height={500} />,  // Specify width and height
+  definitionTitle: "What is 06 Clean Water & Sanitation?",
+  definitionPara: "Clean Water and Sanitation, aims to ensure the availability and sustainable management of water and sanitation for all. 1  This goal recognizes that access to clean water and sanitation is 2  a fundamental human right essential for health, development, and equality."
 };
 
 const targetsData: TargetsData = {
@@ -74,6 +76,32 @@ const targetsData: TargetsData = {
   iconSrc: "/path-to-your-icon.png",
 };
 
+const eventsData: EventsData = {
+  title: "Upcoming Events",
+  description: "These events happen annually",
+  events: [
+    {
+      imgSrc : "/seventeenxmelbourne2024-graphic.png",
+      title : "SEVENTEENx Melbourne",
+      date: "20 November 2024",
+      href : "https://events.humanitix.com/seventeenx-melbourne-2024?utm_medium=paid&utm_source=ig&utm_id=120210902296870575&utm_content=120210902297030575&utm_term=120210902296990575&utm_campaign=120210902296870575&fbclid=PAZXh0bgNhZW0BMAABpqJq2jsqXg9WMf6ShxMKckRldAGZzXndlEQWf3652pvMMjXKtlnkv6-TYA_aem_MVrVNgUUpVtFd2C4GUt34Q"
+    },
+    {
+      // Event Card Data
+      imgSrc : "/worldwaterday-graphic.png",
+      title : "World Water Day",
+      date : "22 March 2025",
+      href : "https://www.un.org/en/observances/water-day"
+    },
+    {
+      imgSrc : "/worldoceanday-graphic.png",
+      title : "World Ocean Day",
+      date: "8 June 2025",
+      href : "https://worldoceanday.org/"
+    }
+  ]
+};
+
 const quizData = {
   title: "Test Your Knowledge on Water Sustainability",
   questions: [
@@ -116,6 +144,7 @@ export default function InfographicExample() {
     <InfographicPage
       headerData={headerData}
       targetsData={targetsData}
+      eventsData={eventsData}
       quizData={quizData}
       gameData={gameData}
       ScrollComponent={WaterDropScroll}

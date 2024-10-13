@@ -8,6 +8,8 @@ export interface HeaderData {
   backgroundColor?: string;
   newsBannerColor?: string;
   illustrationComponent?: ReactNode;
+  definitionTitle: string;
+  definitionPara: string;
 }
 
 export interface Target {
@@ -21,6 +23,19 @@ export interface TargetsData {
   subtitle: string;
   targets: Target[];
   iconSrc?: string;
+}
+
+export interface Event {
+  imgSrc: string,
+  title: string,
+  date: string,
+  href?: string
+}
+
+export interface EventsData {
+  title: string;
+  description: string;
+  events: Event[];
 }
 
 interface QuizQuestion {

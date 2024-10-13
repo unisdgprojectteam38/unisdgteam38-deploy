@@ -11,6 +11,7 @@
     "@dotlottie/dotlottie-js": "^0.8.1",
     "@lottiefiles/dotlottie-react": "^0.9.1",
     "@lottiefiles/react-lottie-player": "^3.5.4",
+    "@aws-sdk/client-ses": "^3.637.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "autoprefixer": "10.4.17",
@@ -19,6 +20,7 @@
     "geist": "^1.2.1",
     "lucide-react": "^0.427.0",
     "next": "latest",
+    "nodemailer": "^6.9.15",
     "postcss": "8.4.33",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -34,6 +36,7 @@
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
     "encoding": "^0.1.13",
+    "typescript": "5.5.4",
     "eslint-config-next": "14.2.7",
     "globals": "^15.9.0",
     "typescript": "5.5.4"

@@ -86,7 +86,9 @@ const gameData = {
     //   lottieAnimation: "/animations/globe-with-water-droplets.lottie",
     // },
   ],
-};
+};import { Event } from '@/types/infographics';
+import { EventsSection } from './events/EventsSection';
+
 interface QuizQuestion {
   type: "single" | "multiple";
   question: string;
@@ -103,6 +105,8 @@ interface InfographicPageProps {
     backgroundColor?: string;
     newsBannerColor?: string;
     illustrationComponent?: React.ReactNode;
+    definitionTitle: string;
+    definitionPara: string;
   };
   targetsData: {
     title: string;
@@ -110,6 +114,11 @@ interface InfographicPageProps {
     targets: Target[];
     iconSrc?: string;
   };
+  eventsData: {
+    title: string;
+    description: string;
+    events: Event[];
+  }
   quizData?: {
     title: string;
     questions: QuizQuestion[];
@@ -124,6 +133,7 @@ interface InfographicPageProps {
 export const InfographicPage: React.FC<InfographicPageProps> = ({
   headerData,
   targetsData,
+  eventsData,
   quizData,
   gameData,
   ScrollComponent,
@@ -234,6 +244,7 @@ export const InfographicPage: React.FC<InfographicPageProps> = ({
         />
       </div>
       <TargetsSection {...targetsData} />
+      <EventsSection {...eventsData}/>
       {quizData && (
         <div className="my-8">
           <h2 className="text-2xl font-bold mb-4">{quizData.title}</h2>

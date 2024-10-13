@@ -9,6 +9,8 @@ interface HeaderSectionProps {
   backgroundColor?: string;
   newsBannerColor?: string;
   illustrationComponent?: React.ReactNode;
+  definitionTitle: string;
+  definitionPara: string;
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
@@ -19,26 +21,40 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   backgroundColor = "bg-blue-500",
   newsBannerColor = "bg-orange-300",
   illustrationComponent,
+  definitionTitle,
+  definitionPara,
 }) => {
   return (
     <section className={`${backgroundColor} p-8`}>
-      <div className={`${newsBannerColor} p-4 rounded-lg mb-8`}>
-        <div className="flex items-center">
+
+      {/* News Alert Bar */}
+      <div className={`${newsBannerColor} flex flex-row p-4 rounded-lg mb-8`}>
+        <div className="h-[87px] flex items-start">
           <AlertTriangle className="text-black mr-2" />
-          <h2 className="font-bold">{newsTitle}</h2>
         </div>
-        <p className="text-sm mt-2">{newsContent}</p>
+        <div className="h-[87px] flex-col justify-start items-start gap-3 inline-flex">
+          <h2 className="text-[#172b4d] text-2xl font-medium font-['Poppins'] leading-7">{newsTitle}</h2>
+          <p className="h-[47px] text-[#172b4d] text-base font-normal font-['Poppins'] leading-tight">{newsContent}</p>
+        </div>
+        
       </div>
-      
-      <div className="flex justify-between items-start">
-        <div className="text-white max-w-2xl">
-          <h1 className="text-6xl font-bold mb-4">{mainTitle}</h1>
-          <p className="text-xl">{mainSubtitle}</p>
+
+      {/* Hero Section */}
+      <div className="flex justify-between items-start pb-8">
+        <div className="h-72 flex-col justify-center items-start gap-8 inline-flex">
+          <h1 className="text-white text-[64px] font-semibold font-['Poppins'] leading-[80px]">{mainTitle}</h1>
+          <p className="w-[425px] text-white text-[29px] font-medium font-['Poppins'] leading-8">{mainSubtitle}</p>
         </div>
         
         <div className="w-1/2">
           {illustrationComponent}
         </div>
+      </div>
+
+      {/* Definition Section, Subheader*/}
+      <div className={"flex-col w-full justify-start items-center gap-6 inline-flex bg-white py-16 rounded-lg"}>
+        <h2 className="text-center text-black text-[29px] font-medium font-['Poppins'] leading-loose">{definitionTitle}</h2>
+        <p className="w-[900px] text-center text-black text-base font-normal font-['Poppins'] leading-tight">{definitionPara}</p>
       </div>
     </section>  
   );

@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Player } from "@lottiefiles/react-lottie-player";
-import CelebrationAnimation from "@/public/celebrate.json";
-import IncorrectAnimation from "@/public/incorrect.json";
 import { QuizSection } from "@/types/sections";
+
 const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
   section,
 }) => {
   const { data, onComplete } = section;
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null); // Track correctness
-  const [showCelebration, setShowCelebration] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+
+  // Reset state when a new section loads
+  useEffect(() => {
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+  }, [section]);
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer);
@@ -19,11 +23,7 @@ const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
   const handleComplete = () => {
     if (selectedAnswer === data.correctAnswer) {
       setIsCorrect(true);
-      setShowCelebration(true); // Show celebration animation
-      setTimeout(() => {
-        setShowCelebration(false); // Hide celebration animation after some time
-        onComplete();
-      }, 2000);
+      onComplete(); // Trigger completion immediately when answer is correct
     } else {
       setIsCorrect(false); // Show incorrect feedback
     }
@@ -36,17 +36,6 @@ const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
       }`}
       style={{ boxShadow: "rgba(40, 46, 62, 0.12) 0px 4px 16px 0px" }}
     >
-      {/* Celebration Animation */}
-      {showCelebration && (
-        <div className="fixed top-0 left-0 right-0 flex justify-center z-[902]">
-          <Player
-            autoplay
-            src={CelebrationAnimation}
-            style={{ height: "200px", width: "200px" }}
-          />
-        </div>
-      )}
-
       <div>
         <div className="flex justify-between items-center mb-6">
           <span className="text-sm font-semibold text-[#586380]">
@@ -110,17 +99,6 @@ const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
         >
           {isCorrect === false ? "Try Again" : "Submit Answer"}
         </button>
-      )}
-
-      {/* Incorrect answer feedback animation */}
-      {isCorrect === false && (
-        <div className="fixed top-0 left-0 right-0 flex justify-center z-[902]">
-          <Player
-            autoplay
-            src={IncorrectAnimation}
-            style={{ height: "150px", width: "150px" }}
-          />
-        </div>
       )}
     </div>
   );

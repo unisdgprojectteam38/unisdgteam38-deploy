@@ -1,4 +1,17 @@
-// types/sections.ts
+import { ReactNode } from 'react';
+
+export interface HeaderData {
+  newsTitle: string;
+  newsContent: string;
+  mainTitle: string;
+  mainSubtitle: string;
+  backgroundColor?: string;
+  newsBannerColor?: string;
+  illustrationComponent?: ReactNode | string;
+  definitionTitle: string;
+  definitionPara: string;
+}
+
 export interface BaseSection {
   id: string;
   title: string;
@@ -23,6 +36,11 @@ export interface TextSection extends BaseSection {
   };
 }
 
+export interface HeaderSection extends BaseSection {
+  type: "header";
+  data: HeaderData;
+}
+
 export interface ResourceManagerGameSection extends BaseSection {
   type: "resourceManagerGame";
   data: {};
@@ -40,4 +58,5 @@ export type Section =
   | QuizSection
   | TextSection
   | ResourceManagerGameSection
-  | FlashcardGameSection;
+  | FlashcardGameSection
+  | HeaderSection;

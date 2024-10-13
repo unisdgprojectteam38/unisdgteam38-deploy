@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import ModulePlayer from "@/components/modulePlayer/ModulePlayer";
-import { Section } from "@/types/sections"; // Import the Section type from your types file
+import { Section, HeaderData } from "@/types/sections";
 
 interface PlayModuleProps {
   params: {
@@ -34,9 +34,7 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
@@ -67,19 +65,50 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
 
           if (sectionsError) throw sectionsError;
 
-          setSections(
-            sectionsData.map((section: any) => ({
+          const formattedSections: Section[] = sectionsData.map((section: any) => {
+            const baseSection = {
               id: section.section_id,
               title: section.title,
               order_id: section.order_id,
               type: section.section_type as Section['type'],
               data: section.data,
-              onComplete: () =>
-                console.log(
-                  `Completed Section ${section.order_id}: ${section.title}`
-                ),
-            }))
-          );
+              onComplete: () => console.log(`Completed Section ${section.order_id}: ${section.title}`),
+            };
+
+            if (section.section_type === 'header') {
+              return {
+                ...baseSection,
+                type: 'header',
+                data: section.data as HeaderData,
+              };
+            }
+
+            return baseSection;
+          });
+
+          // Add header section if it doesn't exist
+          if (!formattedSections.some(section => section.type === 'header')) {
+            const headerSection: Section = {
+              id: 'header',
+              title: 'Module Introduction',
+              order_id: 0,
+              type: 'header',
+              data: {
+                newsTitle: 'Module News',
+                newsContent: 'Latest updates for this module',
+                mainTitle: moduleData.title,
+                mainSubtitle: moduleData.subtitle || 'Learn and explore',
+                backgroundColor: 'bg-blue-500',
+                newsBannerColor: 'bg-yellow-300',
+                definitionTitle: 'About This Module',
+                definitionPara: 'Explore and learn about important concepts',
+              } as HeaderData,
+              onComplete: () => console.log('Header section viewed'),
+            };
+            formattedSections.unshift(headerSection);
+          }
+
+          setSections(formattedSections);
           setIsLoading(false);
         } catch (error) {
           console.error("Error fetching data:", error);

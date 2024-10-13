@@ -2,30 +2,23 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import NewsIcon from '@/public/Icon-Daily-News.svg';
+import { HeaderSection as HeaderSectionType } from '@/types/sections';
 
-interface HeaderSectionProps {
-  newsTitle: string;
-  newsContent: string;
-  mainTitle: string;
-  mainSubtitle: string;
-  backgroundColor?: string;
-  newsBannerColor?: string;
-  illustrationComponent?: React.ReactNode;
-  definitionTitle: string;
-  definitionPara: string;
-}
 
-export const HeaderSection: React.FC<HeaderSectionProps> = ({
-  newsTitle,
-  newsContent,
-  mainTitle,
-  mainSubtitle,
-  backgroundColor = "bg-[#0a97d9]",
-  newsBannerColor = "bg-[#fea362]",
-  illustrationComponent,
-  definitionTitle,
-  definitionPara,
-}) => {
+export const HeaderSection: React.FC<{ section: HeaderSectionType }> = ({ section }) => {
+  const {
+    newsTitle,
+    newsContent,
+    mainTitle,
+    mainSubtitle,
+    backgroundColor = "bg-[#0a97d9]",
+    newsBannerColor = "bg-[#fea362]",
+    illustrationComponent,
+    definitionTitle,
+    definitionPara,
+  } = section.data;
+
+
   return (
     <section className={`${backgroundColor} p-8`}>
 

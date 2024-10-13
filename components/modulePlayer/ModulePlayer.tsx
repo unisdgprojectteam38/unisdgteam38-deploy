@@ -7,12 +7,14 @@ import {
   TextSection,
   ResourceManagerGameSection,
   FlashcardGameSection,
+  HeaderSection as HeaderSectionType,
 } from "@/types/sections";
 import CelebrationAnimation from "@/public/celebrate.json";
 import QuizSectionComponent from "./sections/quiz/Quiz";
 import TextSectionComponent from "./sections/text/Text";
 import ResourceManagerGameComponent from "./sections/resourceManagerGame/ResourceManagerGame";
 import FlashcardSectionComponent from "./sections/flashcards/Flashcards";
+import { HeaderSection } from '@/components/info/header/HeaderSection';
 import { motion } from "framer-motion";
 
 interface ModulePlayerProps {
@@ -31,6 +33,7 @@ const SECTION_COMPONENTS: Record<Section["type"], React.FC<{ section: Section }>
   text: TextSectionComponent as React.FC<{ section: Section }>,
   resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section }>,
   flashcards: FlashcardSectionComponent as React.FC<{ section: Section }>,
+  header: HeaderSection as React.FC<{ section: Section }>,
 };
 
 const ModulePlayer: React.FC<ModulePlayerProps> = ({
@@ -113,9 +116,11 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="mb-12"
                 >
-                  <h2 className="text-2xl font-bold mb-4">
-                    Section {index + 1}: {section.title}
-                  </h2>
+                  {section.type !== 'header' && (
+                    <h2 className="text-2xl font-bold mb-4">
+                      Section {index + 1}: {section.title}
+                    </h2>
+                  )}
                   <SectionComponent
                     section={{
                       ...section,

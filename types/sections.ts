@@ -54,22 +54,23 @@ export interface FlashcardGameSection extends BaseSection {
   };
 }
 
-// Add this to your existing types
 export interface EventsSection extends BaseSection {
   type: "events";
   data: {
     title: string;
     description: string;
-    events: Array<{
-      imgSrc: string;
-      title: string;
-      date: string;
-      href?: string;
-    }>;
+    events: Event[];
   };
 }
 
-// Update your Section type union
+export interface Event {
+  imgSrc: string;
+  title: string;
+  date: string;
+  href?: string;
+}
+
+// Update the Section type union
 export type Section =
   | QuizSection
   | TextSection
@@ -77,5 +78,3 @@ export type Section =
   | FlashcardGameSection
   | HeaderSection
   | EventsSection;
-
-

@@ -64,14 +64,15 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
   );
 };
 
-const SECTION_COMPONENTS: Record<Section['type'], React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>> = {
-  quiz: QuizSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
-  text: TextSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
-  resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
-  flashcards: FlashcardSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
-  header: HeaderSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
-  events: EventsSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
+const SECTION_COMPONENTS: Record<Section['type'], React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>> = {
+  quiz: QuizSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
+  text: TextSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
+  resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
+  flashcards: FlashcardSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
+  header: HeaderSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
+  events: EventsSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
 };
+
 
 
 const sectionTypes: Omit<Section, 'id'>[] = [
@@ -283,6 +284,7 @@ const AdminBuilder: React.FC = () => {
                   <SectionComponent
                     section={section}
                     onUpdate={handleUpdateSection}
+                    isEditable={true}
                   />
                 </div>
                 <Button onClick={() => handleRemoveSection(section.id)} variant="secondary">

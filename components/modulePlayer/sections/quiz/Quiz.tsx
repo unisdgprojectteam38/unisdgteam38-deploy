@@ -1,41 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { QuizSection } from "@/types/sections";
+import { QuizSection, Section } from "@/types/sections";
+import { Button } from "@/components/ui/Button";
+import { Input, Textarea } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Plus, X } from "lucide-react";
 
-interface EditableQuizSectionComponentProps {
+interface QuizSectionComponentProps {
   section: QuizSection;
-  onUpdate: (updatedSection: QuizSection) => void;
-  isEditing: boolean;
+  onUpdate?: (updatedSection: Section) => void;
+  isEditable?: boolean;
 }
 
-const EditableQuizSectionComponent: React.FC<EditableQuizSectionComponentProps> = ({
+const QuizSectionComponent: React.FC<QuizSectionComponentProps> = ({
   section,
   onUpdate,
-  isEditing,
+  isEditable = false,
 }) => {
+  const [isEditing, setIsEditing] = useState(isEditable);
   const [localSection, setLocalSection] = useState(section);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
   useEffect(() => {
+    setLocalSection(section);
     setSelectedAnswer(null);
     setIsCorrect(null);
   }, [section]);
 
-  const handleAnswerSelect = (answer: string) => {
-    if (!isEditing) {
-      setSelectedAnswer(answer);
-      setIsCorrect(null);
-    }
-  };
-
-  const handleComplete = () => {
-    if (selectedAnswer === localSection.data.correctAnswer) {
-      setIsCorrect(true);
-      section.onComplete();
-    } else {
-      setIsCorrect(false);
-    }
-  };
+  useEffect(() => {
+    setIsEditing(isEditable);
+  }, [isEditable]);
 
   const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setLocalSection({
@@ -60,51 +54,90 @@ const EditableQuizSectionComponent: React.FC<EditableQuizSectionComponentProps> 
     });
   };
 
-  const handleSave = () => {
-    onUpdate(localSection);
+  const handleAddOption = () => {
+    setLocalSection({
+      ...localSection,
+      data: {
+        ...localSection.data,
+        options: [...localSection.data.options, ""],
+      },
+    });
   };
 
-  if (isEditing) {
-    return (
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <textarea
-          value={localSection.data.question}
-          onChange={handleQuestionChange}
-          className="w-full mb-4 p-2 border rounded"
-          placeholder="Enter question"
-        />
-        {localSection.data.options.map((option, index) => (
-          <input
-            key={index}
+  const handleRemoveOption = (index: number) => {
+    const newOptions = localSection.data.options.filter((_, i) => i !== index);
+    setLocalSection({
+      ...localSection,
+      data: { ...localSection.data, options: newOptions },
+    });
+  };
+
+  const handleSave = () => {
+    if (onUpdate) {
+      onUpdate(localSection);
+    }
+    setIsEditing(false);
+  };
+
+  const handleAnswerSelect = (answer: string) => {
+    setSelectedAnswer(answer);
+    setIsCorrect(null);
+  };
+
+  const handleComplete = () => {
+    if (selectedAnswer === localSection.data.correctAnswer) {
+      setIsCorrect(true);
+      localSection.onComplete();
+    } else {
+      setIsCorrect(false);
+    }
+  };
+
+  const renderEditMode = () => (
+    <div className="bg-white p-6 rounded-lg shadow-lg">
+      <h3 className="text-xl font-bold mb-4">Edit Quiz Question</h3>
+      <Textarea
+        value={localSection.data.question}
+        onChange={handleQuestionChange}
+        className="w-full mb-4 p-2 border rounded"
+        placeholder="Enter question"
+      />
+      {localSection.data.options.map((option, index) => (
+        <div key={index} className="flex mb-2">
+          <Input
             type="text"
             value={option}
             onChange={(e) => handleOptionChange(index, e.target.value)}
-            className="w-full mb-2 p-2 border rounded"
+            className="flex-grow mr-2 p-2 border rounded"
             placeholder={`Option ${index + 1}`}
           />
+          <Button onClick={() => handleRemoveOption(index)} variant="secondary">
+            <X size={16} />
+          </Button>
+        </div>
+      ))}
+      <Button onClick={handleAddOption} variant="secondary" className="mb-4">
+        <Plus size={16} className="mr-2" /> Add Option
+      </Button>
+      <Select
+        value={localSection.data.correctAnswer}
+        onChange={handleCorrectAnswerChange}
+        className="w-full mb-4 p-2 border rounded"
+      >
+        <option value="">Select correct answer</option>
+        {localSection.data.options.map((option, index) => (
+          <option key={index} value={option}>
+            {option}
+          </option>
         ))}
-        <select
-          value={localSection.data.correctAnswer}
-          onChange={handleCorrectAnswerChange}
-          className="w-full mb-4 p-2 border rounded"
-        >
-          {localSection.data.options.map((option, index) => (
-            <option key={index} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <button 
-          onClick={handleSave}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Save Changes
-        </button>
-      </div>
-    );
-  }
+      </Select>
+      <Button onClick={handleSave} variant="primary" className="w-full">
+        Save Changes
+      </Button>
+    </div>
+  );
 
-  return (
+  const renderViewMode = () => (
     <div
       className={`bg-white rounded-lg shadow-lg p-8 flex flex-col justify-between min-h-[468px] ${
         isCorrect === false ? "animate-shake" : ""
@@ -114,7 +147,7 @@ const EditableQuizSectionComponent: React.FC<EditableQuizSectionComponentProps> 
       <div>
         <div className="flex justify-between items-center mb-6">
           <span className="text-sm font-semibold text-[#586380]">
-            {section.order_id + ". " + section.title}
+            {localSection.order_id + ". " + localSection.title}
           </span>
           <div className="flex items-center">
             <button className="p-1 bg-gray-200 rounded-full mr-2">
@@ -142,6 +175,7 @@ const EditableQuizSectionComponent: React.FC<EditableQuizSectionComponentProps> 
           {localSection.data.question}
         </p>
       </div>
+
       <div className="grid grid-cols-2 gap-6">
         {localSection.data.options.map((option, index) => (
           <button
@@ -164,6 +198,7 @@ const EditableQuizSectionComponent: React.FC<EditableQuizSectionComponentProps> 
           </button>
         ))}
       </div>
+
       {selectedAnswer && (
         <button
           onClick={handleComplete}
@@ -173,8 +208,16 @@ const EditableQuizSectionComponent: React.FC<EditableQuizSectionComponentProps> 
           {isCorrect === false ? "Try Again" : "Submit Answer"}
         </button>
       )}
+
+      {isEditable && (
+        <Button onClick={() => setIsEditing(true)} variant="secondary" className="mt-4">
+          Edit Question
+        </Button>
+      )}
     </div>
   );
+
+  return isEditing ? renderEditMode() : renderViewMode();
 };
 
-export default EditableQuizSectionComponent;
+export default QuizSectionComponent;

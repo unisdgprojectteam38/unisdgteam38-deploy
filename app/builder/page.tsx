@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import {
   DndContext,
   closestCenter,
@@ -19,20 +20,18 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import InlineHeaderEditor from '@/components/builder/InlineHeaderEditor';
+import { HeaderSection } from '@/components/info/header/HeaderSection';
+import { EventsSection } from '@/components/info/events/EventsSection';
+import QuizSectionComponent from '@/components/modulePlayer/sections/quiz/Quiz';
+import TextSectionComponent from '@/components/modulePlayer/sections/text/Text';
+import ResourceManagerGameComponent from '@/components/modulePlayer/sections/resourceManagerGame/ResourceManagerGame';
+import FlashcardSectionComponent from '@/components/modulePlayer/sections/flashcards/Flashcards';
+
 import SectionCarousel from '@/components/builder/SectionCarousel';
-import Portrait3Horizontal from '@/components/builder/sections/Portrait3Horizontal';
-import MediumLengthHeading from '@/components/builder/sections/MediumLengthHeading';
-import QuizSectionBuilder from '@/components/builder/sections/QuizSectionBuilder';
-import { HeaderData, Section } from '@/types/infographics';
 import { Button } from '@/components/ui/Button';
 import { Plus, GripVertical, X } from 'lucide-react';
-
-const sectionTypes: Omit<Section, 'id' | 'content'>[] = [
-  { type: 'portrait3Horizontal', title: '1 Portrait 3 Horizontal' },
-  { type: 'mediumLengthHeading', title: 'Medium Length Heading' },
-  { type: 'quizSection', title: 'Quiz Section' },
-];
+import { Section, HeaderData } from '@/types/sections';
+import { Input } from '@/components/ui/Input';
 
 interface SortableItemProps {
   id: string;
@@ -65,17 +64,73 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
   );
 };
 
+const SECTION_COMPONENTS: Record<Section['type'], React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>> = {
+  quiz: QuizSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
+  text: TextSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
+  resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
+  flashcards: FlashcardSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
+  header: HeaderSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
+  events: EventsSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void }>,
+};
+
+
+const sectionTypes: Omit<Section, 'id'>[] = [
+  { 
+    type: 'quiz', 
+    title: 'Quiz Section', 
+    order_id: 0,
+    data: {
+      question: '',
+      options: [],
+      correctAnswer: '',
+    },
+    onComplete: () => {}
+  },
+  { 
+    type: 'text', 
+    title: 'Text Section', 
+    order_id: 0,
+    data: {
+      content: '',
+    },
+    onComplete: () => {}
+  },
+  { 
+    type: 'resourceManagerGame', 
+    title: 'Resource Manager Game', 
+    order_id: 0,
+    data: {},
+    onComplete: () => {}
+  },
+  { 
+    type: 'flashcards', 
+    title: 'Flashcard Game', 
+    order_id: 0,
+    data: {
+      title: '',
+      cardPairs: [],
+    },
+    onComplete: () => {}
+  },
+  { 
+    type: 'events', 
+    title: 'Events Section', 
+    order_id: 0,
+    data: {
+      title: '',
+      description: '',
+      events: [],
+    },
+    onComplete: () => {}
+  },
+];
+
 const AdminBuilder: React.FC = () => {
-  const [headerData, setHeaderData] = useState<HeaderData>({
-    newsTitle: 'Default News Title',
-    newsContent: 'Default news content goes here.',
-    mainTitle: 'DEFAULT MAIN TITLE',
-    mainSubtitle: 'Default main subtitle text.',
-    backgroundColor: 'bg-blue-500',
-    newsBannerColor: 'bg-orange-300',
-  });
   const [sections, setSections] = useState<Section[]>([]);
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
+  const [moduleTitle, setModuleTitle] = useState('');
+  const [moduleSubtitle, setModuleSubtitle] = useState('');
+  const supabase = createClient();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -84,52 +139,64 @@ const AdminBuilder: React.FC = () => {
     })
   );
 
-  const handleHeaderUpdate = (newData: HeaderData) => {
-    setHeaderData(newData);
-  };
+  useEffect(() => {
+    // Initialize with a header section
+    setSections([
+      {
+        id: 'header',
+        type: 'header',
+        title: 'Module Header',
+        order_id: 0,
+        data: {
+          newsTitle: 'Module News',
+          newsContent: 'Latest updates for this module',
+          mainTitle: 'New Module',
+          mainSubtitle: 'Learn and explore',
+          backgroundColor: 'bg-blue-500',
+          newsBannerColor: 'bg-yellow-300',
+          definitionTitle: 'About This Module',
+          definitionPara: 'Explore and learn about important concepts',
+        } as HeaderData,
+        onComplete: () => {},
+      },
+    ]);
+  }, []);
 
-  const handleSave = () => {
-    const pageData = {
-      header: headerData,
-      sections: sections,
-    };
-    console.log('Saving page data:', JSON.stringify(pageData));
-    // TODO: Implement actual save functionality to Supabase
-  };
-
-  const handleAddSection = (newSection: Omit<Section, 'id' | 'content'>) => {
-    let initialContent: any = {};
-    if (newSection.type === 'portrait3Horizontal') {
-      initialContent = {
-        topic: '',
-        description: '',
-        images: ['', '', ''],
-        headers: ['', '', ''],
-        durations: ['', '', ''],
-        descriptions: ['', '', ''],
-      };
-    } else if (newSection.type === 'mediumLengthHeading') {
-      initialContent = {
-        heading: '',
-        description: '',
-        buttonText: '',
-        imageUrl: '',
-        imagePosition: 'right',
-      };
-    } else if (newSection.type === 'quizSection') {
-      initialContent = {
-        title: '',
-        questions: [],
-      };
+  const handleAddSection = (newSection: Omit<Section, 'id'>) => {
+    const id = Date.now().toString();
+    const order_id = sections.length;
+    
+    // Deep clone the newSection object
+    const sectionToAdd = JSON.parse(JSON.stringify(newSection));
+    
+    // Update the order_id
+    sectionToAdd.order_id = order_id;
+    
+    // Add an id to the section
+    sectionToAdd.id = id;
+    
+    // For flashcards and events, we might want to add some initial data
+    if (sectionToAdd.type === 'flashcards') {
+      sectionToAdd.data.cardPairs = [
+        { id: 1, concept: 'Concept 1', details: 'Details 1' },
+        { id: 2, concept: 'Concept 2', details: 'Details 2' },
+      ];
+    } else if (sectionToAdd.type === 'events') {
+      sectionToAdd.data.events = [
+        {
+          imgSrc: '/placeholder.jpg',
+          title: 'Event 1',
+          date: '2023-01-01',
+        },
+      ];
     }
-    setSections([...sections, { ...newSection, content: initialContent, id: Date.now().toString() }]);
+
+    setSections([...sections, sectionToAdd]);
     setIsCarouselOpen(false);
   };
 
   const handleRemoveSection = (id: string) => {
-    if (window.confirm('Are you sure you want to remove this section?')) {
-      setSections(sections.filter(section => section.id !== id));
-    }
+    setSections(sections.filter(section => section.id !== id));
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -139,62 +206,66 @@ const AdminBuilder: React.FC = () => {
       setSections((items) => {
         const oldIndex = items.findIndex(item => item.id === active.id);
         const newIndex = items.findIndex(item => item.id === over?.id);
-        return arrayMove(items, oldIndex, newIndex);
+        return arrayMove(items, oldIndex, newIndex).map((item, index) => ({ ...item, order_id: index }));
       });
     }
   };
 
-  const renderSection = (section: Section) => {
-    switch (section.type) {
-      case 'portrait3Horizontal':
-        return (
-          <Portrait3Horizontal
-            content={section.content}
-            onUpdate={(newContent) => {
-              const newSections = sections.map(s => 
-                s.id === section.id ? { ...s, content: newContent } : s
-              );
-              setSections(newSections);
-            }}
-          />
-        );
-      case 'mediumLengthHeading':
-        return (
-          <MediumLengthHeading
-            content={section.content}
-            onUpdate={(newContent) => {
-              const newSections = sections.map(s => 
-                s.id === section.id ? { ...s, content: newContent } : s
-              );
-              setSections(newSections);
-            }}
-          />
-        );
-      case 'quizSection':
-        return (
-          <QuizSectionBuilder
-            content={section.content}
-            onUpdate={(newContent) => {
-              const newSections = sections.map(s => 
-                s.id === section.id ? { ...s, content: newContent } : s
-              );
-              setSections(newSections);
-            }}
-          />
-        );
-      default:
-        return null;
+  const handleSave = async () => {
+    try {
+      // First, create a new module
+      const { data: moduleData, error: moduleError } = await supabase
+        .from('module')
+        .insert({ title: moduleTitle, subtitle: moduleSubtitle })
+        .select()
+        .single();
+
+      if (moduleError) throw moduleError;
+
+      // Then, insert all sections
+      const { error: sectionsError } = await supabase.from('section').insert(
+        sections.map(section => ({
+          module_id: moduleData.module_id,
+          data: section.data,
+          order_id: section.order_id,
+          title: section.title,
+          section_type: section.type,
+        }))
+      );
+
+      if (sectionsError) throw sectionsError;
+
+      console.log('Module and sections saved successfully');
+    } catch (error) {
+      console.error('Error saving module:', error);
     }
   };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Admin Builder</h1>
-     
-      <div className="mb-4">
-        <InlineHeaderEditor initialData={headerData} onUpdate={handleHeaderUpdate} />
-      </div>
+  const handleUpdateSection = (updatedSection: Section) => {
+    setSections(prevSections => 
+      prevSections.map(section => 
+        section.id === updatedSection.id ? updatedSection : section
+      )
+    );
+  };
 
+  return (
+    <div className="container mx-auto p-4 bg-[#F6F7FB]">
+      <h1 className="text-3xl font-bold mb-6">Module Builder</h1>
+      <Input
+        type="text"
+        value={moduleTitle}
+        onChange={(e) => setModuleTitle(e.target.value)}
+        placeholder="Enter module title"
+        className="w-full p-2 mb-4 border rounded"
+      />
+      <Input
+        type="text"
+        value={moduleSubtitle}
+        onChange={(e) => setModuleSubtitle(e.target.value)}
+        placeholder="Enter module subtitle"
+        className="w-full p-2 mb-4 border rounded"
+      />
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -204,20 +275,26 @@ const AdminBuilder: React.FC = () => {
           items={sections.map(s => s.id)}
           strategy={verticalListSortingStrategy}
         >
-          {sections.map((section) => (
-            <SortableItem key={section.id} id={section.id}>
-              <div className="flex-grow">
-                {renderSection(section)}
-              </div>
-              <Button onClick={() => handleRemoveSection(section.id)} variant="secondary">
-                <X size={24} className="text-red-500" />
-              </Button>
-            </SortableItem>
-          ))}
+          {sections.map((section) => {
+            const SectionComponent = SECTION_COMPONENTS[section.type];
+            return (
+              <SortableItem key={section.id} id={section.id}>
+                <div className="flex-grow">
+                  <SectionComponent
+                    section={section}
+                    onUpdate={handleUpdateSection}
+                  />
+                </div>
+                <Button onClick={() => handleRemoveSection(section.id)} variant="secondary">
+                  <X size={24} className="text-red-500" />
+                </Button>
+              </SortableItem>
+            );
+          })}
         </SortableContext>
       </DndContext>
-
-      <Button onClick={() => setIsCarouselOpen(true)} className="mb-4">
+      
+      <Button onClick={() => setIsCarouselOpen(true)} variant="secondary" className="mb-4">
         <Plus className="mr-2" /> Add Section
       </Button>
       {isCarouselOpen && (
@@ -227,7 +304,7 @@ const AdminBuilder: React.FC = () => {
           onClose={() => setIsCarouselOpen(false)} 
         />
       )}
-      <Button onClick={handleSave}>Save Changes</Button>
+      <Button onClick={handleSave} variant="primary" className="mt-4">Save Module</Button>
     </div>
   );
 };

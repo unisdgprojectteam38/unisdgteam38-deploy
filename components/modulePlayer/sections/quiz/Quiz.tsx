@@ -1,38 +1,113 @@
 import React, { useState, useEffect } from "react";
-import { Player } from "@lottiefiles/react-lottie-player";
 import { QuizSection } from "@/types/sections";
 
-const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
+interface EditableQuizSectionComponentProps {
+  section: QuizSection;
+  onUpdate: (updatedSection: QuizSection) => void;
+  isEditing: boolean;
+}
+
+const EditableQuizSectionComponent: React.FC<EditableQuizSectionComponentProps> = ({
   section,
+  onUpdate,
+  isEditing,
 }) => {
-  const { data, onComplete } = section;
+  const [localSection, setLocalSection] = useState(section);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
-  // Reset state when a new section loads
   useEffect(() => {
     setSelectedAnswer(null);
     setIsCorrect(null);
   }, [section]);
 
   const handleAnswerSelect = (answer: string) => {
-    setSelectedAnswer(answer);
-    setIsCorrect(null); // Reset correctness on new selection
+    if (!isEditing) {
+      setSelectedAnswer(answer);
+      setIsCorrect(null);
+    }
   };
 
   const handleComplete = () => {
-    if (selectedAnswer === data.correctAnswer) {
+    if (selectedAnswer === localSection.data.correctAnswer) {
       setIsCorrect(true);
-      onComplete(); // Trigger completion immediately when answer is correct
+      section.onComplete();
     } else {
-      setIsCorrect(false); // Show incorrect feedback
+      setIsCorrect(false);
     }
   };
+
+  const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setLocalSection({
+      ...localSection,
+      data: { ...localSection.data, question: e.target.value },
+    });
+  };
+
+  const handleOptionChange = (index: number, value: string) => {
+    const newOptions = [...localSection.data.options];
+    newOptions[index] = value;
+    setLocalSection({
+      ...localSection,
+      data: { ...localSection.data, options: newOptions },
+    });
+  };
+
+  const handleCorrectAnswerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLocalSection({
+      ...localSection,
+      data: { ...localSection.data, correctAnswer: e.target.value },
+    });
+  };
+
+  const handleSave = () => {
+    onUpdate(localSection);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <textarea
+          value={localSection.data.question}
+          onChange={handleQuestionChange}
+          className="w-full mb-4 p-2 border rounded"
+          placeholder="Enter question"
+        />
+        {localSection.data.options.map((option, index) => (
+          <input
+            key={index}
+            type="text"
+            value={option}
+            onChange={(e) => handleOptionChange(index, e.target.value)}
+            className="w-full mb-2 p-2 border rounded"
+            placeholder={`Option ${index + 1}`}
+          />
+        ))}
+        <select
+          value={localSection.data.correctAnswer}
+          onChange={handleCorrectAnswerChange}
+          className="w-full mb-4 p-2 border rounded"
+        >
+          {localSection.data.options.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <button 
+          onClick={handleSave}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Save Changes
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
       className={`bg-white rounded-lg shadow-lg p-8 flex flex-col justify-between min-h-[468px] ${
-        isCorrect === false ? "animate-shake" : "" // Shake animation on incorrect
+        isCorrect === false ? "animate-shake" : ""
       }`}
       style={{ boxShadow: "rgba(40, 46, 62, 0.12) 0px 4px 16px 0px" }}
     >
@@ -64,22 +139,21 @@ const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
           </div>
         </div>
         <p className="text-[20px] leading-[32.5px] mb-8 text-[#282e3e]">
-          {data.question}
+          {localSection.data.question}
         </p>
       </div>
-
       <div className="grid grid-cols-2 gap-6">
-        {data.options.map((option, index) => (
+        {localSection.data.options.map((option, index) => (
           <button
             key={index}
             onClick={() => handleAnswerSelect(option)}
             className={`text-left p-4 border-2 rounded-lg flex items-center text-[#2e3856] cursor-pointer transition-colors ${
               selectedAnswer === option
                 ? isCorrect === null
-                  ? "bg-blue-100" // Highlight selected option initially
-                  : option === data.correctAnswer
-                  ? "bg-green-100 border-green-500" // Green on correct
-                  : "bg-red-100 border-red-500" // Red on incorrect
+                  ? "bg-blue-100"
+                  : option === localSection.data.correctAnswer
+                  ? "bg-green-100 border-green-500"
+                  : "bg-red-100 border-red-500"
                 : "border-[#edeff4] hover:bg-gray-50"
             }`}
           >
@@ -90,11 +164,10 @@ const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
           </button>
         ))}
       </div>
-
       {selectedAnswer && (
         <button
           onClick={handleComplete}
-          disabled={isCorrect !== null} // Disable if already answered
+          disabled={isCorrect !== null}
           className="w-full mt-6 py-3 rounded-md text-lg font-semibold bg-blue-500 text-white hover:bg-blue-600 transition-all disabled:opacity-50"
         >
           {isCorrect === false ? "Try Again" : "Submit Answer"}
@@ -104,4 +177,4 @@ const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
   );
 };
 
-export default QuizSectionComponent;
+export default EditableQuizSectionComponent;

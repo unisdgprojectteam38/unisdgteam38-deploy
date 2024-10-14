@@ -1,8 +1,60 @@
-import React from "react";
-import { TextSection } from "@/types/sections"; // Import the TextSection type
+import React, { useState } from "react";
+import { TextSection } from "@/types/sections";
 
-const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) => {
-  const { data, onComplete } = section;
+interface EditableTextSectionComponentProps {
+  section: TextSection;
+  onUpdate: (updatedSection: TextSection) => void;
+  isEditing: boolean;
+}
+
+const EditableTextSectionComponent: React.FC<EditableTextSectionComponentProps> = ({
+  section,
+  onUpdate,
+  isEditing,
+}) => {
+  const [localSection, setLocalSection] = useState(section);
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setLocalSection({
+      ...localSection,
+      data: { ...localSection.data, content: e.target.value },
+    });
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSection({ ...localSection, title: e.target.value });
+  };
+
+  const handleSave = () => {
+    onUpdate(localSection);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <input
+          type="text"
+          value={localSection.title}
+          onChange={handleTitleChange}
+          className="w-full text-2xl font-bold mb-4 p-2 border rounded"
+          placeholder="Section Title"
+        />
+        <textarea
+          value={localSection.data.content}
+          onChange={handleContentChange}
+          className="w-full h-64 mb-4 p-2 border rounded"
+          placeholder="Enter your content here"
+        />
+        <button 
+          onClick={handleSave}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Save Changes
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       className="bg-white rounded-lg shadow-lg p-8 flex flex-col justify-between min-h-[468px]"
@@ -11,7 +63,7 @@ const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) =
       <div>
         <div className="flex justify-between items-center mb-6">
           <span className="text-sm font-semibold text-[#586380]">
-            {section.order_id + ". " + section.title}
+            {localSection.order_id + ". " + localSection.title}
           </span>
           <div className="flex items-center">
             <button className="p-1 bg-gray-200 rounded-full mr-2">
@@ -39,11 +91,11 @@ const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) =
           className="text-[20px] leading-[32.5px] mb-8 text-[#282e3e]"
           style={{ WebkitFontSmoothing: "antialiased" }}
         >
-          {data.content}
+          {localSection.data.content}
         </p>
       </div>
       <button
-        onClick={onComplete}
+        onClick={section.onComplete}
         className="w-full py-3 rounded-md text-lg font-semibold bg-blue-500 text-white hover:bg-blue-600"
       >
         Continue
@@ -52,4 +104,4 @@ const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) =
   );
 };
 
-export default TextSectionComponent;
+export default EditableTextSectionComponent;

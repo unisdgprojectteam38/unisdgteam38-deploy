@@ -14,7 +14,11 @@ import QuizSectionComponent from "./sections/quiz/Quiz";
 import TextSectionComponent from "./sections/text/Text";
 import ResourceManagerGameComponent from "./sections/resourceManagerGame/ResourceManagerGame";
 import FlashcardSectionComponent from "./sections/flashcards/Flashcards";
+
 import { HeaderSection } from '@/components/info/header/HeaderSection';
+import { EventsSection } from '@/components/info/events/EventsSection';
+// import {QuizSectionComponent} from "./sections/quiz/Quiz";
+
 import { motion } from "framer-motion";
 
 interface ModulePlayerProps {
@@ -34,6 +38,8 @@ const SECTION_COMPONENTS: Record<Section["type"], React.FC<{ section: Section }>
   resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section }>,
   flashcards: FlashcardSectionComponent as React.FC<{ section: Section }>,
   header: HeaderSection as React.FC<{ section: Section }>,
+  events: EventsSection as React.FC<{ section: Section }>,
+  // quiz: QuizSectionComponent as React.FC<{ section: Section }>,
 };
 
 const ModulePlayer: React.FC<ModulePlayerProps> = ({

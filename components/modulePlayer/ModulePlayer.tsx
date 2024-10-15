@@ -1,5 +1,3 @@
-// Update code to include progression tracking
-
 import React, { useState, useEffect, useRef } from "react";
 import { WaterContainer } from "@/components/ui/watercontainer/WaterContainer";
 import { Player } from "@lottiefiles/react-lottie-player";
@@ -16,7 +14,6 @@ import QuizSectionComponent from "./sections/quiz/Quiz";
 import TextSectionComponent from "./sections/text/Text";
 import ResourceManagerGameComponent from "./sections/resourceManagerGame/ResourceManagerGame";
 import FlashcardSectionComponent from "./sections/flashcards/Flashcards";
-
 import { HeaderSection } from "@/components/info/header/HeaderSection";
 import { EventsSection } from "@/components/info/events/EventsSection";
 import { createClient } from "@/utils/supabase/client";
@@ -28,10 +25,13 @@ interface ModulePlayerProps {
     module_id: string;
     title: string;
     subtitle: string;
+    sdg_id: string;
+    order_id: number;
   };
   sections: Section[];
   onComplete: () => void;
   moduleTitle: string;
+  nextModuleId: string | null;
 }
 
 interface User {
@@ -40,12 +40,12 @@ interface User {
 }
 
 const SECTION_COMPONENTS: Record<Section["type"], React.FC<{ section: Section }>> = {
-  quiz: QuizSectionComponent as React.FC<{ section: Section }> ,
-  text: TextSectionComponent as React.FC<{ section: Section }> ,
-  resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section }> ,
-  flashcards: FlashcardSectionComponent as React.FC<{ section: Section }> ,
-  header: HeaderSection as React.FC<{ section: Section }> ,
-  events: EventsSection as React.FC<{ section: Section }> ,
+  quiz: QuizSectionComponent as React.FC<{ section: Section }>,
+  text: TextSectionComponent as React.FC<{ section: Section }>,
+  resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section }>,
+  flashcards: FlashcardSectionComponent as React.FC<{ section: Section }>,
+  header: HeaderSection as React.FC<{ section: Section }>,
+  events: EventsSection as React.FC<{ section: Section }>,
 };
 
 const ModulePlayer: React.FC<ModulePlayerProps> = ({
@@ -53,50 +53,46 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
   sections,
   onComplete,
   moduleTitle,
+  nextModuleId,
 }) => {
   const [progress, setProgress] = useState(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [userSectionProgress, setUserSectionProgress] = useState<any[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const supabase = createClient();
+  const [isModuleCompleted, setIsModuleCompleted] = useState(false);
 
+  // TODO: FIX ADD IF NOT INITIALIZED PROFILE
   useEffect(() => {
     const fetchUserData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
         setUser(user);
+        
+        // Check if user has a profile, create one if not
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+  
+        if (profileError && profileError.code === 'PGRST116') {
+          // Profile doesn't exist, create one
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, role: 'user' });
+  
+          if (createError) {
+            console.error('Error creating profile:', createError);
+          }
+        }
       }
     };
     fetchUserData();
   }, [supabase, router]);
-
-  useEffect(() => {
-    const fetchSectionProgress = async () => {
-      if (user) {
-        try {
-          const { data: progressData, error } = await supabase
-            .from("usersectionprogress")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("module_id", modules.module_id);
-          if (error) {
-            console.error("Error fetching section progress:", error);
-          } else {
-            setUserSectionProgress(progressData);
-          }
-        } catch (error) {
-          console.error("Unexpected error fetching section progress:", error);
-        }
-      }
-    };
-    fetchSectionProgress();
-  }, [user, supabase, modules, showAnimation]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,29 +113,51 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
     };
   }, []);
 
-  const getSectionStatus = (sectionId: string): 'todo' | 'done' => {
-    const progress = userSectionProgress.find((p) => p.section_id === sectionId);
-    return progress ? progress.status : 'todo';
-  };
-
-
-  const handleSectionComplete = async (index: number, sectionId: string) => {
+  const handleModuleComplete = async () => {
     if (!user) return;
     try {
-      const { error } = await supabase.from("usersectionprogress").upsert({
+      // Mark current module as complete
+      await supabase.from("usermoduleprogress").upsert({
         user_id: user.id,
-        section_id: sectionId,
         module_id: modules.module_id,
-        status: "done",
+        progress: "done",
         last_updated: new Date().toISOString(),
       });
-      if (error) throw error;
+
+      // Check if all modules in the SDG are complete
+      const { data: allModules } = await supabase
+        .from("module")
+        .select("module_id")
+        .eq("sdg_id", modules.sdg_id);
+
+      const { data: completedModules } = await supabase
+        .from("usermoduleprogress")
+        .select("module_id")
+        .eq("user_id", user.id)
+        .eq("progress", "done")
+        .in("module_id", allModules!.map(m => m.module_id));
+
+      if (allModules!.length === completedModules!.length) {
+        // All modules are complete, mark SDG as complete
+        await supabase.from("usersdgprogress").upsert({
+          user_id: user.id,
+          sdg_id: modules.sdg_id,
+          progress: "done",
+          last_updated: new Date().toISOString(),
+        });
+      }
+
+      setIsModuleCompleted(true);
+      onComplete();
       setShowAnimation(true);
       setTimeout(() => {
         setShowAnimation(false);
+        if (nextModuleId) {
+          router.push(`/play/${nextModuleId}`);
+        } else {
+          router.push(`/sdg/${modules.sdg_id}`);
+        }
       }, 2000);
-      // Remove the check for the last section
-      onComplete();
     } catch (error) {
       console.error("Error updating progress:", error);
     }
@@ -177,7 +195,6 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
           >
             {sections.map((section, index) => {
               const SectionComponent = SECTION_COMPONENTS[section.type];
-              const status = getSectionStatus(section.id);
               return (
                 <motion.div
                   key={index}
@@ -188,20 +205,28 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
                   <h2 className="text-2xl font-bold mb-4">
                     Section {index + 1}: {section.title}
                   </h2>
-                  <SectionComponent
-                    section={{
-                      ...section,
-                      onComplete: () => handleSectionComplete(index, section.id),
-                    }}
-                  />
-                  {status === 'done' && (
-                    <div className="flex items-center justify-end mt-2">
-                      <span className="text-green-500">✓ Completed</span>
-                    </div>
-                  )}
+                  <SectionComponent section={section} />
                 </motion.div>
               );
             })}
+            <div className="mt-8 flex justify-between items-center">
+              {!isModuleCompleted && (
+                <button
+                  onClick={handleModuleComplete}
+                  className="bg-blue-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-blue-600 transition duration-300"
+                >
+                  Complete Module
+                </button>
+              )}
+              {isModuleCompleted && (
+                <button
+                  onClick={() => nextModuleId ? router.push(`/play/${nextModuleId}`) : router.push(`/sdg/${modules.sdg_id}`)}
+                  className="bg-green-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-green-600 transition duration-300"
+                >
+                  {nextModuleId ? "Next Module" : "Back to SDG"}
+                </button>
+              )}
+            </div>
           </div>
         </main>
       </div>

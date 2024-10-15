@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { CheckCircle, ChevronRight, Lock } from "lucide-react";
+import { CheckCircle, ChevronRight } from "lucide-react";
 
 // Define types
 interface User {
@@ -34,11 +34,8 @@ const RaindropSVG = () => (
   </svg>
 );
 
-export default function SdgDetail({
-  params: { slug },
-}: {
-  params: { slug: string };
-}) {
+export default function SdgDetail({ params: { slug } }: { params: { slug: string } }) {
+  
   const router = useRouter();
   const supabase = createClient();
 
@@ -48,18 +45,34 @@ export default function SdgDetail({
   const [userModuleProgress, setUserModuleProgress] = useState<UserModuleProgress[]>([]);
   const [featuredModule, setFeaturedModule] = useState<Module | null>(null);
 
+  // TODO: FIX ADD IF NOT INITIALIZED PROFILE
   useEffect(() => {
     const fetchUserData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
-        setUser(user as User);
+        setUser(user);
+        
+        // Check if user has a profile, create one if not
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+  
+        if (profileError && profileError.code === 'PGRST116') {
+          // Profile doesn't exist, create one
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, role: 'user' });
+  
+          if (createError) {
+            console.error('Error creating profile:', createError);
+          }
+        }
       }
     };
-
     fetchUserData();
   }, [supabase, router]);
 
@@ -241,12 +254,14 @@ export default function SdgDetail({
                 return (
                   <li
                     key={module.module_id}
-                    className="flex items-center p-2 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-50"
+                    className={`flex items-center p-2 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-50 ${
+                      status === 'done' ? 'bg-blue-100' : ''
+                    }`}
                     onClick={() => router.push(`/play/${module.module_id}`)}
                   >
                     <div
                       className={`w-12 h-12 rounded-lg mr-4 flex-shrink-0 flex items-center justify-center ${
-                        status === "done" ? "bg-green-500" : "bg-orange-200"
+                        status === "done" ? "bg-blue-500" : "bg-orange-200"
                       }`}
                     >
                       {status === "done" ? (

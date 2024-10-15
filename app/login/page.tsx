@@ -57,25 +57,38 @@ export default function Login({
 
   const signUp = async (formData: FormData) => {
     "use server";
-
+  
     const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const supabase = createClient();
-
-    const { error } = await supabase.auth.signUp({
+  
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${origin}/auth/callback`,
       },
     });
-
+  
     if (error) {
       console.log(error);
       return redirect("/login?message=Could not authenticate user");
     }
-
+  
+    if (data.user) {
+      // Create a profile for the new user
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({ id: data.user.id, role: 'user' });
+  
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        // You might want to handle this error, perhaps by deleting the created user
+        // or by setting a flag to create the profile on next login attempt
+      }
+    }
+  
     return redirect("/login?message=Check email to continue sign in process");
   };
 

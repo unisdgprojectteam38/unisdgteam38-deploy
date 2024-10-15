@@ -16,8 +16,8 @@ export interface BaseSection {
   id: string;
   title: string;
   order_id: number;
+  type: 'quiz' | 'text' | 'resourceManagerGame' | 'flashcards' | 'header' | 'events';
   data: any;
-  onComplete: () => void;
 }
 
 export interface QuizSection extends BaseSection {
@@ -70,13 +70,7 @@ export interface Event {
   href?: string;
 }
 
-export type Section =
-  | QuizSection
-  | TextSection
-  | ResourceManagerGameSection
-  | FlashcardGameSection
-  | HeaderSection
-  | EventsSection;
+export type Section = QuizSection | TextSection | ResourceManagerGameSection | FlashcardGameSection | HeaderSection | EventsSection;
 
 // Add these new interfaces
 export interface Module {

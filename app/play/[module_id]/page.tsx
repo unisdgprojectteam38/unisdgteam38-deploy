@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ModulePlayer from "@/components/modulePlayer/ModulePlayer";
 import { Section, HeaderData } from "@/types/sections";
 
@@ -25,6 +25,7 @@ interface Module {
 
 const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   const [user, setUser] = useState<User | null>(null);
@@ -35,7 +36,6 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   const [nextModuleId, setNextModuleId] = useState<string | null>(null);
   const sectionsRef = useRef<{ [key: string]: HTMLElement | null }>({});
 
-  // TODO: FIX no need check init
   useEffect(() => {
     const fetchUserData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -86,17 +86,14 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
               .select("module_id")
               .eq("sdg_id", moduleData.sdg_id)
               .gt("order_id", moduleData.order_id)
-              .not("order_id", "is", null)
               .order("order_id", { ascending: true })
               .limit(1)
               .single();
           
-            if (error) {
+            if (error && error.code !== 'PGRST116') {
               console.error("Error fetching next module:", error);
-              setNextModuleId(null);
-            } else {
-              setNextModuleId(nextModule?.module_id || null);
             }
+            setNextModuleId(nextModule?.module_id || null);
           } catch (error) {
             console.error("Unexpected error fetching next module:", error);
             setNextModuleId(null);
@@ -151,24 +148,23 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   }, [user, module_id, supabase]);
 
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleScrollToSection = () => {
       const hash = window.location.hash;
       if (hash) {
         const sectionId = hash.replace('#section-', '');
         const sectionElement = sectionsRef.current[sectionId];
         if (sectionElement) {
-          sectionElement.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            sectionElement.scrollIntoView({ behavior: 'smooth' });
+          }, 100); // Small delay to ensure the component is fully rendered
         }
       }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // Handle initial load
-
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
-  }, []);
+    if (!isLoading) {
+      handleScrollToSection();
+    }
+  }, [isLoading, searchParams]);
 
   const handleMarkAsComplete = async () => {
     if (user && module) {
@@ -230,10 +226,8 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           sdg_id: module.sdg_id.toString(),
           order_id: module.order_id,
         }}
-        sections={sections.map(section => ({
-          ...section,
-          ref: (el: HTMLElement | null) => (sectionsRef.current[section.id] = el)
-        }))}
+        sections={sections}
+        sectionsRef={sectionsRef}
         onComplete={handleMarkAsComplete}
         moduleTitle={module.title}
         nextModuleId={nextModuleId}

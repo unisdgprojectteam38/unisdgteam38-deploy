@@ -20,6 +20,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
+
 interface ModulePlayerProps {
   modules: {
     module_id: string;
@@ -29,6 +30,7 @@ interface ModulePlayerProps {
     order_id: number;
   };
   sections: Section[];
+  sectionsRef: React.MutableRefObject<{ [key: string]: HTMLElement | null }>;
   onComplete: () => void;
   moduleTitle: string;
   nextModuleId: string | null;
@@ -51,6 +53,7 @@ const SECTION_COMPONENTS: Record<Section["type"], React.FC<{ section: Section }>
 const ModulePlayer: React.FC<ModulePlayerProps> = ({
   modules,
   sections,
+  sectionsRef,
   onComplete,
   moduleTitle,
   nextModuleId,
@@ -193,22 +196,24 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
             className="flex-grow overflow-y-auto p-8"
             style={{ height: "calc(100vh - 64px)" }}
           >
-            {sections.map((section, index) => {
-              const SectionComponent = SECTION_COMPONENTS[section.type];
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <h2 className="text-2xl font-bold mb-4">
-                    Section {index + 1}: {section.title}
-                  </h2>
-                  <SectionComponent section={section} />
-                </motion.div>
-              );
-            })}
+          {sections.map((section, index) => {
+            const SectionComponent = SECTION_COMPONENTS[section.type];
+            return (
+              <motion.div
+                key={index}
+                ref={(el) => (sectionsRef.current[section.id] = el)}
+                id={`section-${section.id}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <h2 className="text-2xl font-bold mb-4">
+                  Section {index + 1}: {section.title}
+                </h2>
+                <SectionComponent section={section} />
+              </motion.div>
+            );
+          })}
             <div className="mt-8 flex justify-between items-center">
               {!isModuleCompleted && (
                 <button

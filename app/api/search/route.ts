@@ -38,13 +38,23 @@ export async function GET(request: Request) {
 
     const formattedResults = (data as SectionData[]).map(item => {
       let snippet = '';
+      let content = '';
       if (typeof item.data === 'object') {
-        const content = item.data.content || item.data.question || JSON.stringify(item.data);
-        snippet = content.slice(0, 100) + '...';
+        if (item.data.content) {
+          content = item.data.content;
+        } else if (item.data.question) {
+          content = item.data.question;
+        } else if (item.data.cardPairs) {
+          content = item.data.cardPairs.map((pair: any) => `${pair.concept}: ${pair.details}`).join(' | ');
+        } else {
+          content = JSON.stringify(item.data);
+        }
       } else if (typeof item.data === 'string') {
-        snippet = item.data.slice(0, 100) + '...';
+        content = item.data;
       }
-
+      
+      snippet = content.slice(0, 150) + (content.length > 150 ? '...' : '');
+    
       return {
         sectionId: item.section_id,
         moduleId: item.module_id,

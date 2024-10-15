@@ -108,17 +108,13 @@ export default function Home() {
           <div className="bg-white rounded-3xl p-6 shadow-md">
             <h2 className="text-xl font-semibold mb-4 border-b pb-2">SDGs</h2>
             <ul className="space-y-4">
-              {sdgs.map((sdg, index) => {
+              {sdgs.map((sdg) => {
                 const progress = getSdgProgress(sdg.sdg_id);
-                const isLocked =
-                  index > 0 && getSdgProgress(sdgs[index - 1].sdg_id) < 100;
 
                 return (
                   <li
                     key={sdg.sdg_id}
-                    className={`bg-[#F0F3F9] rounded-xl p-4 ${
-                      isLocked ? "opacity-50" : ""
-                    }`}
+                    className="bg-[#F0F3F9] rounded-xl p-4"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[#4B8BF4] font-semibold">
@@ -131,15 +127,10 @@ export default function Home() {
                       <button
                         onClick={() => router.push(`/sdg/${sdg.sdg_id}`)}
                         className="bg-[#4B8BF4] text-white py-2 px-4 rounded-full font-semibold hover:bg-opacity-90 transition duration-300"
-                        disabled={isLocked}
                       >
                         {progress > 0 ? "Continue" : "Start"}
                       </button>
-                      {isLocked ? (
-                        <Lock className="text-gray-400 w-6 h-6" />
-                      ) : (
-                        <ChevronRight className="text-gray-400 w-6 h-6" />
-                      )}
+                      <ChevronRight className="text-gray-400 w-6 h-6" />
                     </div>
                   </li>
                 );

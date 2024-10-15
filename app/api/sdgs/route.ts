@@ -5,36 +5,45 @@ import { SDG, Module, Section } from '@/types/sections';
 
 export async function GET(request: NextRequest) {
   const supabase = createClient();
+  
   // Check authentication
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
+  
   if (authError || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  
   // Fetch all SDGs from the database
   const { data, error } = await supabase
     .from("sdgs")
     .select("*")
     .order("sdg_display_id", { ascending: true });
+  
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  
   return NextResponse.json(data, { status: 200 });
 }
 
 export async function POST(request: NextRequest) {
   const supabase = createClient();
+  
   // Check authentication
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
+  
   if (authError || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  
   const role = await getUserRole(supabase);
+  
   // Use the role as needed
   if (role !== "admin") {
     return NextResponse.json(
@@ -42,10 +51,10 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     );
   }
-
+  
   const body = await request.json();
   const { title, description, sdg_display_id, modules } = body as SDG;
-
+  
   // Validate input
   if (!title || !description || !sdg_display_id || !modules) {
     return NextResponse.json(
@@ -53,7 +62,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-
+  
   try {
     // Insert SDG
     const { data: sdg, error: sdgError } = await supabase
@@ -61,9 +70,9 @@ export async function POST(request: NextRequest) {
       .insert({ title, description, sdg_display_id })
       .select()
       .single();
-
+    
     if (sdgError) throw sdgError;
-
+    
     // Insert modules
     for (const module of modules) {
       const { data: moduleData, error: moduleError } = await supabase
@@ -77,9 +86,9 @@ export async function POST(request: NextRequest) {
         })
         .select()
         .single();
-
+      
       if (moduleError) throw moduleError;
-
+      
       // Insert sections for each module
       if (module.sections && module.sections.length > 0) {
         const sectionsToInsert = module.sections.map((section: Section) => ({
@@ -89,15 +98,15 @@ export async function POST(request: NextRequest) {
           title: section.title,
           section_type: section.type,
         }));
-
+        
         const { error: sectionError } = await supabase
           .from('section')
           .insert(sectionsToInsert);
-
+        
         if (sectionError) throw sectionError;
       }
     }
-
+    
     return NextResponse.json({ message: "SDG created successfully" }, { status: 201 });
   } catch (error) {
     console.error('Error saving SDG:', error);

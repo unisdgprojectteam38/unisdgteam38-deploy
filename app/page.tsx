@@ -1,127 +1,73 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, User, Menu, Check, PlayCircle, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NewsCard from "@/components/NewsCard";
+import { createClient } from "@/utils/supabase/client";
+
+interface SDG {
+  sdg_id: number;
+  sdg_display_id: string;
+  title: string;
+  description: string;
+}
+
+interface UserSdgProgress {
+  sdg_id: number;
+  progress: 'todo' | 'doing' | 'done';
+}
 
 export default function Index() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [user, setUser] = useState<any>(null);
+  const [sdgs, setSdgs] = useState<SDG[]>([]);
+  const [userSdgProgress, setUserSdgProgress] = useState<UserSdgProgress[]>([]);
   const router = useRouter();
-  const modules = [
-    {
-      title: "1. No Poverty",
-      subhead: "Understanding the issue",
-      status: "not-started",
-      locked: true,
-    },
-    {
-      title: "2. Zero Hunger",
-      subhead: "Case studies and statistics",
-      status: "not-started",
-      locked: true,
-    },
-    {
-      title: "3. Good Health and Well-Being",
-      subhead: "Innovative approaches to ending hunger",
-      status: "not-started",
-      locked: true,
-    },
-    {
-      title: "4. Quality Education",
-      subhead: "Leveraging tech for food security",
-      status: "not-started",
-      locked: true,
-    },
-    {
-      title: "5. Gender Equality",
-      subhead: "How communities are fighting hunger",
-      status: "not-started",
-      locked: true,
-    },
-    {
-      title: "6. Clean Water & Sanitation",
-      subhead: "Test your knowledge",
-      status: "in-progress",
-      locked: false,
-    },
-    {
-    title: "7. Affordable And Clean Enery",
-    subhead: "Understanding the issue",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "8. Decent Work And Economic Growth",
-    subhead: "Case studies and statistics",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "9. Industry, Innovation And Infrastructure",
-    subhead: "Innovative approaches to ending hunger",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "10. Reduced Inequalities",
-    subhead: "Leveraging tech for food security",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "11. Sustainable Cities And Communities",
-    subhead: "How communities are fighting hunger",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "12. Responsible Consumption and Production",
-    subhead: "Test your knowledge",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "13. Climation Action",
-    subhead: "Case studies and statistics",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "14. Life Below Water",
-    subhead: "Innovative approaches to ending hunger",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "15. Life on Land",
-    subhead: "Leveraging tech for food security",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "16. Peace, Justice And Strong Institutions",
-    subhead: "How communities are fighting hunger",
-    status: "not-started",
-    locked: true,
-    },
-    {
-    title: "17. Partnerships for the Goals",
-    subhead: "Test your knowledge",
-    status: "not-started",
-    locked: true,
-    },
-  ];
+  const supabase = createClient();
 
-  const getStatusIcon = (status: any) => {
-    switch (status) {
-      case "completed":
-        return <Check className="h-5 w-5 text-green-500" />;
-      case "in-progress":
-        return <PlayCircle className="h-5 w-5 text-blue-500" />;
-      default:
-        return null;
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        fetchSdgs();
+        fetchUserSdgProgress(user.id);
+      } else {
+        router.push("/login");
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const fetchSdgs = async () => {
+    try {
+      const response = await fetch('/api/sdgs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch SDGs');
+      }
+      const data = await response.json();
+      setSdgs(data);
+    } catch (error) {
+      console.error("Error fetching SDGs:", error);
     }
+  };
+
+  const fetchUserSdgProgress = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("usersdgprogress")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Error fetching user SDG progress:", error);
+    } else {
+      setUserSdgProgress(data);
+    }
+  };
+
+  const getSdgProgress = (sdgId: number): 'todo' | 'doing' | 'done' => {
+    const progress = userSdgProgress.find((p) => p.sdg_id === sdgId);
+    return progress ? progress.progress : 'todo';
   };
 
   return (
@@ -133,12 +79,13 @@ export default function Index() {
       >
         <Menu className="h-6 w-6" />
       </button>
+      
       {/* Sidebar */}
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-white shadow-md overflow-y-auto md:block`}
-        style={{ margin: "0", padding: "0" }} // Ensuring no margin or padding
+        style={{ margin: "0", padding: "0" }}
       >
         <div className="p-4">
           <div className="flex items-center space-x-2 mb-6">
@@ -173,39 +120,32 @@ export default function Index() {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto p-8 md:ml-0">
-
         {/* Hero Section */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-4 font-[Poppins]">Sustainable Development Goals</h1>
           <div className="bg-indigo-900 p-4 rounded-lg flex flex-row gap-16">
-            {/* <img
-              src="./island.svg"
-              alt="SDG Isometric Illustration"
-              className="w-full object-contain rounded"
-              style={{ minHeight: "200px", maxHeight: "300px" }}
-            /> */}
-           <div><img
-              src="./SDGs.png"
-              alt="SDG Grid"
-              className="w-full object-contain rounded"
-              style={{ minHeight: "200px", maxHeight: "300px" }}
-            />
+            <div>
+              <img
+                src="./SDGs.png"
+                alt="SDG Grid"
+                className="w-full object-contain rounded"
+                style={{ minHeight: "200px", maxHeight: "300px" }}
+              />
             </div>
             {/* Goal # */}
-            <div className=" flex flex-col justify-center">
+            <div className="flex flex-col justify-center">
               <h2 className="h-fit text-[150px] text-white font-[Poppins]">6</h2>
             </div>
             {/* Goal Text */}
             <div className="flex flex-col gap-4 text-white justify-center py-8">
               <h2 className="text-xxl font-[Poppins] font-medium">Clean Water And Sanitation</h2>
-              <p className="font-[Poppins] max-w-[500px]">"Clean Water and Sanitation," aims to ensure the availability and sustainable management of water and sanitation for all. 1  This goal recognizes that access to clean water and sanitation is 2  a fundamental human right essential for health, development, and equality.</p>
+              <p className="font-[Poppins] max-w-[500px]">"Clean Water and Sanitation," aims to ensure the availability and sustainable management of water and sanitation for all. This goal recognizes that access to clean water and sanitation is a fundamental human right essential for health, development, and equality.</p>
               <div className="flex flex-row justify-end">
-                <div className="flex flex-row w-fit items-center bg-[#CCE0FF] rounded-full px-4 py-2
-                hover:bg-[#85B8FF]">
+                <div className="flex flex-row w-fit items-center bg-[#CCE0FF] rounded-full px-4 py-2 hover:bg-[#85B8FF]">
                   <p className="text-black text-s font-[Poppins] self-center">Learn more</p>
                   <img
-                  src="./icon_chevron-right.svg"
-                  alt="right facing chevron icon"
+                    src="./icon_chevron-right.svg"
+                    alt="right facing chevron icon"
                   />
                 </div>
               </div>
@@ -234,63 +174,43 @@ export default function Index() {
 
         {/* SDG Modules */}
         <div className="py-8">
-          <h2 className="text-2xl font-bold mb-4 font-[Poppins]">
-            Goals
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-[Poppins] ">
-            {modules.map((module, index) => (
-              <div
-                key={index}
-                className={`relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer hover:bg-[#85B8FF] hover:text-white ${
-                  module.locked ? "opacity-75 cursor-not-allowed" : ""
-                }`}
-                onClick={() => !module.locked && router.push("/quiz")} // Only allow navigation if not locked
-              >
-                <div className="p-4 flex items-start">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center mr-4  ${
-                      module.status === "completed"
-                        ? "bg-green-100 text-green-500"
-                        : module.status === "in-progress"
-                        ? "bg-blue-100 text-blue-500"
-                        : "bg-gray-200 text-gray-500"
-                    }`}
-                  >
-                    {module.title.charAt(0)}
+          <h2 className="text-2xl font-bold mb-4 font-[Poppins]">Goals</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-[Poppins]">
+            {sdgs.map((sdg) => {
+              const progress = getSdgProgress(sdg.sdg_id);
+              return (
+                <div
+                  key={sdg.sdg_id}
+                  className={`relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer hover:bg-[#85B8FF] hover:text-white ${
+                    progress === 'todo' ? "opacity-75 cursor-not-allowed" : ""
+                  }`}
+                  onClick={() => progress !== 'todo' && router.push(`/sdg/${sdg.sdg_id}`)}
+                >
+                  <div className="p-4 flex items-start">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
+                      progress === 'done' ? "bg-green-100 text-green-500" :
+                      progress === 'doing' ? "bg-blue-100 text-blue-500" :
+                      "bg-gray-200 text-gray-500"
+                    }`}>
+                      {sdg.sdg_display_id}
+                    </div>
+                    <div className="flex-grow">
+                      <h3 className="font-semibold text-base">{sdg.title}</h3>
+                      <p className="text-sm text-gray-500 mt-1">{sdg.description}</p>
+                    </div>
+                    <div className="ml-2 flex-shrink-0">
+                      {progress === 'done' && <Check className="h-5 w-5 text-green-500" />}
+                      {progress === 'doing' && <PlayCircle className="h-5 w-5 text-blue-500" />}
+                    </div>
                   </div>
-                  <div className="flex-grow ">
-                    <h3 className="font-semibold text-base">{module.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {module.subhead}
-                    </p>
-                  </div>
-                  <div className="ml-2 flex-shrink-0">
-                    {getStatusIcon(module.status)}
-                  </div>
+                  {progress === 'todo' && (
+                    <div className="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
+                      <Lock className="h-8 w-8 text-white" />
+                    </div>
+                  )}
                 </div>
-                <div className="px-4 pb-3 flex justify-end">
-                  <div className="flex space-x-1">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-2 h-2 rounded-full ${
-                          module.status === "completed"
-                            ? "bg-green-500"
-                            : module.status === "in-progress" && i === 0
-                            ? "bg-blue-500"
-                            : "bg-gray-300"
-                        }`}
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-                {module.locked && (
-                  <div className="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
-                    <Lock className="h-8 w-8 text-white" />
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -306,28 +226,28 @@ export default function Index() {
             the SDGs!
           </p>
         </div>
+        
         {/* News card container */}
         <div className="flex flex-row justify-center items-start h-[360px] px-6 py-4 gap-8">
-              <NewsCard 
-                img="/EVAC-header-desktop.jpg"
-                title="End Child Violence"
-                description= "1 in 2 children are victims of violence. The power to end it is in our hands."
-                href= "https://www.globalgoals.org/endchildviolence/"
-               />
-              <NewsCard 
-                img="/news-article-2.jpg"
-                title="Makes Global Sense"
-                description= "If you had to hcoose between coffee and bread, which would it be?"
-                href= "https://www.globalgoals.org/makestotalsense/"
-               />
-              <NewsCard 
-                img="/news-article-3.jpg"
-                title="Global Goals"
-                description= "What are the global goals?"
-                href= "https://www.globalgoals.org/news/what-are-the-global-goals/"
-               />
+          <NewsCard 
+            img="/EVAC-header-desktop.jpg"
+            title="End Child Violence"
+            description="1 in 2 children are victims of violence. The power to end it is in our hands."
+            href="https://www.globalgoals.org/endchildviolence/"
+          />
+          <NewsCard 
+            img="/news-article-2.jpg"
+            title="Makes Global Sense"
+            description="If you had to choose between coffee and bread, which would it be?"
+            href="https://www.globalgoals.org/makestotalsense/"
+          />
+          <NewsCard 
+            img="/news-article-3.jpg"
+            title="Global Goals"
+            description="What are the global goals?"
+            href="https://www.globalgoals.org/news/what-are-the-global-goals/"
+          />
         </div>
-
       </main>
     </div>
   );

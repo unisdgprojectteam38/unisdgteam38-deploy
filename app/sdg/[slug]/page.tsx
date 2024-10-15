@@ -165,7 +165,7 @@ export default function SdgDetail({ params: { slug } }: { params: { slug: string
             </button>
             <button
               className="p-1 bg-gray-100 rounded-md"
-              onClick={() => router.push("/home")}
+              onClick={() => router.push("/")}
             >
               <svg
                 className="w-5 h-5 text-[#586380]"

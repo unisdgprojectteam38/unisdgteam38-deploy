@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import ModulePlayer from "@/components/modulePlayer/ModulePlayer";
@@ -33,8 +33,9 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
   const [nextModuleId, setNextModuleId] = useState<string | null>(null);
+  const sectionsRef = useRef<{ [key: string]: HTMLElement | null }>({});
 
-  // TODO: FIX ADD IF NOT INITIALIZED PROFILE
+  // TODO: FIX no need check init
   useEffect(() => {
     const fetchUserData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -64,10 +65,7 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
     };
     fetchUserData();
   }, [supabase, router]);
-  
 
-
-  
   useEffect(() => {
     const fetchModuleAndSections = async () => {
       if (user) {
@@ -82,7 +80,6 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           setModule(moduleData);
 
           // Fetch next module
-          // TODO: FIX ERROR
           try {
             const { data: nextModule, error } = await supabase
               .from("module")
@@ -153,6 +150,26 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
     fetchModuleAndSections();
   }, [user, module_id, supabase]);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const sectionId = hash.replace('#section-', '');
+        const sectionElement = sectionsRef.current[sectionId];
+        if (sectionElement) {
+          sectionElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange(); // Handle initial load
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
   const handleMarkAsComplete = async () => {
     if (user && module) {
       try {
@@ -189,7 +206,6 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
     }
   };
 
-
   if (isLoading || !module || sections.length === 0) {
     return <div>Loading...</div>;
   }
@@ -214,7 +230,10 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           sdg_id: module.sdg_id.toString(),
           order_id: module.order_id,
         }}
-        sections={sections}
+        sections={sections.map(section => ({
+          ...section,
+          ref: (el: HTMLElement | null) => (sectionsRef.current[section.id] = el)
+        }))}
         onComplete={handleMarkAsComplete}
         moduleTitle={module.title}
         nextModuleId={nextModuleId}

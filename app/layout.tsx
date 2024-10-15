@@ -1,3 +1,6 @@
+import React from 'react';
+import Link from 'next/link';
+import { Search } from 'lucide-react';
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 
@@ -18,7 +21,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={GeistSans.className}>
-      <body className="bg-background text-foreground">{children}</body>
+      <body className="bg-background text-foreground">
+        <header className="sticky top-0 z-[901] h-16 bg-white">
+          <div className="h-full px-6 flex items-center justify-between">
+            <Link href="/">
+              <span className="text-lg font-semibold">SDG Learning Platform</span>
+            </Link>
+            <Link href="/search">
+              <Search className="w-6 h-6" />
+            </Link>
+          </div>
+        </header>
+        <main>{children}</main>
+      </body>
     </html>
   );
 }

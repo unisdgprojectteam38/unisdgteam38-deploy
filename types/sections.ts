@@ -70,7 +70,6 @@ export interface Event {
   href?: string;
 }
 
-// Update the Section type union
 export type Section =
   | QuizSection
   | TextSection
@@ -78,3 +77,19 @@ export type Section =
   | FlashcardGameSection
   | HeaderSection
   | EventsSection;
+
+// Add these new interfaces
+export interface Module {
+  id: string;
+  title: string;
+  subtitle: string;
+  order_id: number;
+  sections: Section[];
+}
+
+export interface SDG {
+  title: string;
+  description: string;
+  sdg_display_id: number;
+  modules: Module[];
+}

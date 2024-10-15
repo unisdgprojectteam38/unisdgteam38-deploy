@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, ReactNode, useEffect } from 'react';
+import React, { useState, ReactNode, useEffect, ChangeEvent } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import {
   DndContext,
@@ -29,9 +29,10 @@ import FlashcardSectionComponent from '@/components/modulePlayer/sections/flashc
 
 import SectionCarousel from '@/components/builder/SectionCarousel';
 import { Button } from '@/components/ui/Button';
-import { Plus, GripVertical, X } from 'lucide-react';
-import { Section, HeaderData } from '@/types/sections';
 import { Input } from '@/components/ui/Input';
+import { Plus, GripVertical, X } from 'lucide-react';
+import { Section, HeaderData, Module, SDG } from '@/types/sections';
+
 
 interface SortableItemProps {
   id: string;
@@ -127,10 +128,14 @@ const sectionTypes: Omit<Section, 'id'>[] = [
 ];
 
 const AdminBuilder: React.FC = () => {
-  const [sections, setSections] = useState<Section[]>([]);
+  const [sdg, setSDG] = useState<SDG>({
+    title: '',
+    description: '',
+    sdg_display_id: 0,
+    modules: [],
+  });
+  const [currentModuleIndex, setCurrentModuleIndex] = useState(0);
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
-  const [moduleTitle, setModuleTitle] = useState('');
-  const [moduleSubtitle, setModuleSubtitle] = useState('');
   const supabase = createClient();
 
   const sensors = useSensors(
@@ -140,143 +145,272 @@ const AdminBuilder: React.FC = () => {
     })
   );
 
-  useEffect(() => {
-    // Initialize with a header section
-    setSections([
-      {
-        id: 'header',
-        type: 'header',
-        title: 'Module Header',
-        order_id: 0,
-        data: {
-          newsTitle: 'Module News',
-          newsContent: 'Latest updates for this module',
-          mainTitle: 'New Module',
-          mainSubtitle: 'Learn and explore',
-          backgroundColor: 'bg-blue-500',
-          newsBannerColor: 'bg-yellow-300',
-          definitionTitle: 'About This Module',
-          definitionPara: 'Explore and learn about important concepts',
-        } as HeaderData,
-        onComplete: () => {},
-      },
-    ]);
-  }, []);
+  const handleSDGChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setSDG(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddModule = () => {
+    const newModule: Module = {
+      id: Date.now().toString(),
+      title: `New Module ${sdg.modules.length + 1}`,
+      subtitle: '',
+      order_id: sdg.modules.length,
+      sections: [],
+    };
+    setSDG(prev => ({ ...prev, modules: [...prev.modules, newModule] }));
+    setCurrentModuleIndex(sdg.modules.length);
+  };
+  
+
+  const handleModuleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
+    const { name, value } = e.target;
+    setSDG(prev => ({
+      ...prev,
+      modules: prev.modules.map((module, i) => 
+        i === index ? { ...module, [name]: value } : module
+      ),
+    }));
+  };
 
   const handleAddSection = (newSection: Omit<Section, 'id'>) => {
     const id = Date.now().toString();
-    const order_id = sections.length;
+    const order_id = sdg.modules[currentModuleIndex].sections.length;
     
-    // Deep clone the newSection object
-    const sectionToAdd = JSON.parse(JSON.stringify(newSection));
-    
-    // Update the order_id
-    sectionToAdd.order_id = order_id;
-    
-    // Add an id to the section
-    sectionToAdd.id = id;
-    
-    // For flashcards and events, we might want to add some initial data
-    if (sectionToAdd.type === 'flashcards') {
-      sectionToAdd.data.cardPairs = [
-        { id: 1, concept: 'Concept 1', details: 'Details 1' },
-        { id: 2, concept: 'Concept 2', details: 'Details 2' },
-      ];
-    } else if (sectionToAdd.type === 'events') {
-      sectionToAdd.data.events = [
-        {
-          imgSrc: '/placeholder.jpg',
-          title: 'Event 1',
-          date: '2023-01-01',
-        },
-      ];
-    }
+    const sectionToAdd = {
+      ...JSON.parse(JSON.stringify(newSection)),
+      id,
+      order_id,
+    };
 
-    setSections([...sections, sectionToAdd]);
+    setSDG(prev => ({
+      ...prev,
+      modules: prev.modules.map((module, index) => 
+        index === currentModuleIndex
+          ? { ...module, sections: [...module.sections, sectionToAdd] }
+          : module
+      ),
+    }));
     setIsCarouselOpen(false);
   };
 
-  const handleRemoveSection = (id: string) => {
-    setSections(sections.filter(section => section.id !== id));
+  const handleRemoveSection = (moduleIndex: number, sectionId: string) => {
+    setSDG(prev => ({
+      ...prev,
+      modules: prev.modules.map((module, index) => 
+        index === moduleIndex
+          ? { ...module, sections: module.sections.filter(section => section.id !== sectionId) }
+          : module
+      ),
+    }));
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      setSections((items) => {
-        const oldIndex = items.findIndex(item => item.id === active.id);
-        const newIndex = items.findIndex(item => item.id === over?.id);
-        return arrayMove(items, oldIndex, newIndex).map((item, index) => ({ ...item, order_id: index }));
-      });
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      // First, create a new module
-      const { data: moduleData, error: moduleError } = await supabase
-        .from('module')
-        .insert({ title: moduleTitle, subtitle: moduleSubtitle })
-        .select()
-        .single();
-
-      if (moduleError) throw moduleError;
-
-      // Then, insert all sections
-      const { error: sectionsError } = await supabase.from('section').insert(
-        sections.map(section => ({
-          module_id: moduleData.module_id,
-          data: section.data,
-          order_id: section.order_id,
-          title: section.title,
-          section_type: section.type,
-        }))
-      );
-
-      if (sectionsError) throw sectionsError;
-
-      console.log('Module and sections saved successfully');
-    } catch (error) {
-      console.error('Error saving module:', error);
+      setSDG(prev => ({
+        ...prev,
+        modules: prev.modules.map((module, index) => 
+          index === currentModuleIndex
+            ? {
+                ...module,
+                sections: arrayMove(
+                  module.sections,
+                  module.sections.findIndex(section => section.id === active.id),
+                  module.sections.findIndex(section => section.id === over?.id)
+                ).map((section, index) => ({ ...section, order_id: index })),
+              }
+            : module
+        ),
+      }));
     }
   };
 
   const handleUpdateSection = (updatedSection: Section) => {
-    setSections(prevSections => 
-      prevSections.map(section => 
-        section.id === updatedSection.id ? updatedSection : section
-      )
-    );
+    setSDG(prev => ({
+      ...prev,
+      modules: prev.modules.map((module, index) => 
+        index === currentModuleIndex
+          ? {
+              ...module,
+              sections: module.sections.map(section => 
+                section.id === updatedSection.id ? updatedSection : section
+              ),
+            }
+          : module
+      ),
+    }));
   };
 
+  // const handleSave = async () => {
+  //   try {
+  //     const response = await fetch('/api/admin/sdgs', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(sdg),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to save SDG');
+  //     }
+
+  //     const result = await response.json();
+  //     console.log('SDG saved successfully:', result);
+  //     // Optionally, you can reset the form or show a success message here
+  //   } catch (error) {
+  //     console.error('Error saving SDG:', error);
+  //     // Optionally, you can show an error message to the user here
+  //   }
+  // };
+
+
+  const handleSave = async () => {
+    try {
+      const sdgData = {
+        title: sdg.title,
+        description: sdg.description,
+        sdg_display_id: sdg.sdg_display_id,
+        modules: sdg.modules.map(module => ({
+          title: module.title,
+          subtitle: module.subtitle,
+          order_id: module.order_id,
+          sections: module.sections.map((section: Section) => ({
+            title: section.title,
+            data: section.data,
+            order_id: section.order_id,
+            type: section.type
+          }))
+        }))
+      };
+
+      console.log('Sending data to server:', JSON.stringify(sdgData, null, 2));
+  
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      console.log('Session:', session);
+
+      const response = await fetch('/api/example/admin_only', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify(sdgData),
+      });
+
+      // ... rest of your error handling and logging ...
+    } catch (error) {
+      console.error('Error saving SDG:', error);
+    }
+  };
+
+  // const handleSave = () => {
+  //   console.log('Data that would be sent to the database:');
+  
+  //   // Data for the 'sdgs' table
+  //   console.log('sdgs table:');
+  //   console.log({
+  //     title: sdg.title,
+  //     description: sdg.description,
+  //     sdg_display_id: sdg.sdg_display_id
+  //   });
+  
+  //   // Data for the 'module' table
+  //   console.log('\nmodule table:');
+  //   sdg.modules.forEach((module, index) => {
+  //     console.log(`Module ${index + 1}:`, {
+  //       sdg_id: '<would be generated by database>',
+  //       title: module.title,
+  //       subtitle: module.subtitle,
+  //       order_id: index
+  //     });
+  //   });
+  
+  //   // Data for the 'section' table
+  //   console.log('\nsection table:');
+  //   sdg.modules.forEach((module, moduleIndex) => {
+  //     module.sections.forEach((section, sectionIndex) => {
+  //       console.log(`Module ${moduleIndex + 1}, Section ${sectionIndex + 1}:`, {
+  //         module_id: '<would be generated by database>',
+  //         data: section.data,
+  //         order_id: section.order_id,
+  //         title: section.title,
+  //         section_type: section.type
+  //       });
+  //     });
+  //   });
+  // };
+
+  
   return (
     <div className="container mx-auto p-4 bg-[#F6F7FB]">
-      <h1 className="text-3xl font-bold mb-6">Module Builder</h1>
+      <h1 className="text-3xl font-bold mb-6">SDG Builder</h1>
       <Input
         type="text"
-        value={moduleTitle}
-        onChange={(e) => setModuleTitle(e.target.value)}
-        placeholder="Enter module title"
+        name="title"
+        value={sdg.title}
+        onChange={handleSDGChange}
+        placeholder="Enter SDG title"
+        className="w-full p-2 mb-4 border rounded"
+      />
+      <textarea
+        name="description"
+        value={sdg.description}
+        onChange={handleSDGChange}
+        placeholder="Enter SDG description"
         className="w-full p-2 mb-4 border rounded"
       />
       <Input
-        type="text"
-        value={moduleSubtitle}
-        onChange={(e) => setModuleSubtitle(e.target.value)}
-        placeholder="Enter module subtitle"
+        type="number"
+        name="sdg_display_id"
+        value={sdg.sdg_display_id}
+        onChange={handleSDGChange}
+        placeholder="Enter SDG display ID"
         className="w-full p-2 mb-4 border rounded"
       />
+
+      <h2 className="text-2xl font-bold mb-4">Modules</h2>
+      {sdg.modules.map((module, index) => (
+        <div key={module.id} className="mb-4 p-4 border rounded">
+          <Input
+            type="text"
+            name="title"
+            value={module.title}
+            onChange={(e) => handleModuleChange(e, index)}
+            placeholder="Enter module title"
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <Input
+            type="text"
+            name="subtitle"
+            value={module.subtitle}
+            onChange={(e) => handleModuleChange(e, index)}
+            placeholder="Enter module subtitle"
+            className="w-full p-2 mb-2 border rounded"
+          />
+          <Button onClick={() => setCurrentModuleIndex(index)} variant="secondary">
+            Edit Sections
+          </Button>
+        </div>
+      ))}
+      <Button onClick={handleAddModule} variant="secondary" className="mb-4">
+        <Plus className="mr-2" /> Add Module
+      </Button>
+
+      <h3 className="text-xl font-bold mb-4">Current Module: {sdg.modules[currentModuleIndex]?.title}</h3>
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
         <SortableContext 
-          items={sections.map(s => s.id)}
+          items={sdg.modules[currentModuleIndex]?.sections.map(s => s.id) || []}
           strategy={verticalListSortingStrategy}
         >
-          {sections.map((section) => {
+          {sdg.modules[currentModuleIndex]?.sections.map((section) => {
             const SectionComponent = SECTION_COMPONENTS[section.type];
             return (
               <SortableItem key={section.id} id={section.id}>
@@ -287,7 +421,7 @@ const AdminBuilder: React.FC = () => {
                     isEditable={true}
                   />
                 </div>
-                <Button onClick={() => handleRemoveSection(section.id)} variant="secondary">
+                <Button onClick={() => handleRemoveSection(currentModuleIndex, section.id)} variant="secondary">
                   <X size={24} className="text-red-500" />
                 </Button>
               </SortableItem>
@@ -306,7 +440,7 @@ const AdminBuilder: React.FC = () => {
           onClose={() => setIsCarouselOpen(false)} 
         />
       )}
-      <Button onClick={handleSave} variant="primary" className="mt-4">Save Module</Button>
+      <Button onClick={handleSave} variant="primary" className="mt-4">Save SDG</Button>
     </div>
   );
 };

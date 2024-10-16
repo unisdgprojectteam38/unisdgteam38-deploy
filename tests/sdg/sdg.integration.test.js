@@ -21,8 +21,7 @@ describe('Integration tests for /api/sdg endpoints', () => {
     it('should retrieve all SDG items with a valid access token', async () => {
       const res = await request(app)
         .get('/api/sdg/')
-        .set('Authorization', Bearer ${token});
-
+        .set('Authorization', `Bearer ${token}`);
       expect(res.statusCode).toBe(200);
       expect(res.body).toBeInstanceOf(Array);
       expect(res.body.length).toBeGreaterThanOrEqual(0); // Adjust based on expected data
@@ -36,16 +35,13 @@ describe('Integration tests for /api/sdg endpoints', () => {
         backgroundURL: 'https://example.com/image.png',
         subtitle: 'SDG Subtitle',
       };
-
       const res = await request(app)
         .post('/api/sdg/')
-        .set('Authorization', Bearer ${token})
+        .set('Authorization', `Bearer ${token}`)
         .send(newItem);
-
       expect(res.statusCode).toBe(201);
       expect(res.body).toHaveProperty('id');
       expect(res.body.title).toBe(newItem.title);
-
       // Verify that the item was actually created in the database
       const createdItem = await db.SDG.findById(res.body.id); // Replace with your DB model
       expect(createdItem).not.toBeNull();
@@ -57,12 +53,10 @@ describe('Integration tests for /api/sdg endpoints', () => {
         title: 'SDG Title',
         // backgroundURL and subtitle are missing
       };
-
       const res = await request(app)
         .post('/api/sdg/')
-        .set('Authorization', Bearer ${token})
+        .set('Authorization', `Bearer ${token}`)
         .send(incompleteItem);
-
       expect(res.statusCode).toBe(400);
       expect(res.body).toHaveProperty('error');
     });

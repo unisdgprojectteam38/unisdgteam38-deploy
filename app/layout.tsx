@@ -1,7 +1,7 @@
 import React from 'react';
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
-import Header from './header';
+import Header from './Header';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`

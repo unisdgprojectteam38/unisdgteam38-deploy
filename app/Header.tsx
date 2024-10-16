@@ -1,11 +1,11 @@
 'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import UNiSDGLogo from "@/public/UNiSDG_logo.svg";
+import AuthButton from '@/components/AuthButton';
 
 export default function Header() {
   const pathname = usePathname();
@@ -25,9 +25,12 @@ export default function Header() {
           <span className="text-lg font-semibold">SDG Learning Platform</span>
         </Link>
         {!isLoginPage && (
-          <Link href="/search">
-            <Search className="w-6 h-6" />
-          </Link>
+          <div className="flex items-center space-x-4">
+            <AuthButton />
+            <Link href="/search">
+              <Search className="w-6 h-6" />
+            </Link>
+          </div>
         )}
       </div>
     </header>

@@ -1,4 +1,6 @@
-// File: Footer.tsx
+import Image from 'next/image';
+import SDG06Icon from '@/public/SDG-Grid-Logos/SDG-06.svg';
+
 export default function Footer() {
     const sdgGoals = [
       "1 NO POVERTY",
@@ -19,11 +21,11 @@ export default function Footer() {
       "16 PEACE, JUSTICE AND STRONG INSTITUTIONS",
       "17 PARTNERSHIPS FOR THE GOALS"
     ];
-  
+ 
     return (
       <footer className="bg-white p-8">
         <div className="flex items-center mb-6">
-          <img src="/sdg-icon.png" alt="SDG Icon" className="w-12 h-12 mr-4" />
+          <Image src={SDG06Icon} alt="SDG Icon" width={48} height={48} className="mr-4" />
           <div>
             <h2 className="font-bold">SDG - Clean Water & Sanitation</h2>
           </div>

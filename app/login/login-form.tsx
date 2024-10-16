@@ -1,4 +1,3 @@
-// File: login-form.tsx
 "use client";
 import { SubmitButton } from "./submit-button";
 
@@ -12,7 +11,7 @@ interface LoginFormClientProps {
 
 export default function LoginFormClient({ signIn, signUp, signInWithGoogle, signInWithGithub, message }: LoginFormClientProps) {
   return (
-    <div className="w-full md:w-1/2 bg-white rounded-r-lg shadow-md p-8">
+    <div className="w-full md:w-1/2 bg-white p-8">
       <h2 className="text-2xl font-bold mb-6 text-center">Welcome!</h2>
       <p className="text-sm text-gray-600 mb-6 text-center">Enter your details below</p>
       

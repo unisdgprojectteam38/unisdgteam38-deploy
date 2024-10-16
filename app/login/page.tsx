@@ -1,10 +1,10 @@
 import { headers } from "next/headers";
+import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import LoginFormClient from './login-form';
-import Logo from './Logo';
 import Footer from './Footer';
-
+import SDG6Island from "@/public/sdg6island.svg";
 
 export default function LoginPage({
   searchParams,
@@ -117,10 +117,20 @@ export default function LoginPage({
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <Logo />
-      <main className="flex-grow flex items-center justify-center">
-        <div className="flex w-full max-w-4xl">
-          <div className="hidden md:block w-1/2 bg-blue-900 rounded-l-lg"></div>
+      <main className="flex-grow flex items-center justify-center py-12">
+        <div className="flex w-full max-w-4xl bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="hidden md:block w-1/2 relative bg-blue-900">
+            <div className="absolute inset-0">
+              <Image
+                src={SDG6Island}
+                alt="SDG 6 Island"
+                fill
+                // style={{ objectFit: 'scale-down' }}
+                priority
+                className="w-fit px-10"
+              />
+            </div>
+          </div>
           <LoginFormClient
             signIn={signIn}
             signUp={signUp}

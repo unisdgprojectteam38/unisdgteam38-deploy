@@ -85,8 +85,7 @@ const sectionTypes: Omit<Section, 'id'>[] = [
       question: '',
       options: [],
       correctAnswer: '',
-    },
-    onComplete: () => {}
+    }
   },
   { 
     type: 'text', 
@@ -94,15 +93,13 @@ const sectionTypes: Omit<Section, 'id'>[] = [
     order_id: 0,
     data: {
       content: '',
-    },
-    onComplete: () => {}
+    }
   },
   { 
     type: 'resourceManagerGame', 
     title: 'Resource Manager Game', 
     order_id: 0,
-    data: {},
-    onComplete: () => {}
+    data: {}
   },
   { 
     type: 'flashcards', 
@@ -111,8 +108,7 @@ const sectionTypes: Omit<Section, 'id'>[] = [
     data: {
       title: '',
       cardPairs: [],
-    },
-    onComplete: () => {}
+    }
   },
   { 
     type: 'events', 
@@ -122,8 +118,7 @@ const sectionTypes: Omit<Section, 'id'>[] = [
       title: '',
       description: '',
       events: [],
-    },
-    onComplete: () => {}
+    }
   },
 ];
 

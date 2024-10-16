@@ -15,9 +15,9 @@ export async function POST(request: Request) {
     }
     
     const role = await getUserRole(supabase);
-    if (role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized. You need to be an admin" }, { status: 401 });
-    }
+    // if (role !== "admin") {
+    //   return NextResponse.json({ error: "Unauthorized. You need to be an admin" }, { status: 401 });
+    // }
 
     const body = await request.json();
     const { title, description, sdg_display_id, modules } = body as SDG;

@@ -207,7 +207,7 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <h2 className="text-2xl font-bold mb-4">
+                <h2 className="text-2xl font-bold mb-4 mt-8">
                   Section {index + 1}: {section.title}
                 </h2>
                 <SectionComponent section={section} />

@@ -177,7 +177,7 @@ export default function Index() {
                   <p className="text-black text-s font-[Poppins] self-center">Learn more</p>
                   <img
                     src="./icon_chevron-right.svg"
-                    alt="right facing chevron icon"
+                    alt=""
                   />
                 </div>
               </div>
@@ -214,9 +214,9 @@ export default function Index() {
                 <div
                   key={sdg.sdg_id}
                   className={`relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer hover:bg-[#85B8FF] hover:text-white ${
-                    progress === 'todo' ? "opacity-75 cursor-not-allowed" : ""
+                    progress === 'doing' ? "doing" : "doing"
                   }`}
-                  onClick={() => progress !== 'todo' && router.push(`/sdg/${sdg.sdg_id}`)}
+                  onClick={() => router.push(`/sdg/${sdg.sdg_id}`)}
                 >
                   <div className="p-4 flex items-start">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
@@ -235,7 +235,7 @@ export default function Index() {
                       {progress === 'doing' && <PlayCircle className="h-5 w-5 text-blue-500" />}
                     </div>
                   </div>
-                  {progress === 'todo' && (
+                  {progress === 'doing' && (
                     <div className="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
                       <Lock className="h-8 w-8 text-white" />
                     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import NewsCard from './NewsCard'; // Assuming you have a NewsCard component
+import NewsCard from './NewsCard'; // Adjust path based on your setup
 
 interface Article {
   title: string;
@@ -21,9 +21,6 @@ const NewsCarousel = ({ articles }: NewsCarouselProps) => {
 
   // Ensure exactly 10 articles
   const displayedArticles = articles.slice(0, totalArticles);
-
-  // Calculate the current articles to display based on currentIndex
-  const currentArticles = displayedArticles.slice(currentIndex, currentIndex + itemsPerPage);
 
   // Handle Next Page - Loop to the beginning if at the end
   const nextPage = () => {
@@ -47,17 +44,25 @@ const NewsCarousel = ({ articles }: NewsCarouselProps) => {
         ◀
       </button>
 
-      {/* News Cards */}
-      <div className="flex justify-center gap-6 overflow-hidden w-full max-w-5xl">
-        {currentArticles.map((article, index) => (
-          <NewsCard
-            key={index}
-            img={article.urlToImage || '/default-image.jpg'} // Fallback image if none provided
-            title={article.title}
-            description={article.description}
-            href={article.url}
-          />
-        ))}
+      {/* News Cards with animation */}
+      <div className="overflow-hidden w-full max-w-5xl">
+        <div
+          className="flex transition-transform duration-500 ease-in-out" // Add Tailwind CSS transition class
+          style={{
+            transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`, // Move carousel left/right
+          }}
+        >
+          {displayedArticles.map((article, index) => (
+            <div className="w-1/3 flex-shrink-0 px-4" key={index}>
+              <NewsCard
+                img={article.urlToImage || '/default-image.jpg'} // Fallback image if none provided
+                title={article.title}
+                description={article.description}
+                href={article.url}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Right Arrow Button */}

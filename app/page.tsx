@@ -204,27 +204,29 @@ export default function Index() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-8 md:ml-0">
+      <main className="flex-1 overflow-y-auto p-8 md:ml-0 bg-default">
 
         {/* Hero Section */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-4 font-[Poppins]">Sustainable Development Goals</h1>
-          <div className="bg-indigo-900 p-4 rounded-lg flex flex-row gap-8">
+          <h1>Sustainable Development Goals</h1>
+          <div className="bg-blue-900 p-4 rounded-lg flex flex-row gap-8">
             <div className="w-[600px]">
               <SDGGrid onSelectGoal={handleSelectGoal} />
             </div>
             {/* Goal # */}
             <div className=" flex flex-col justify-center">
-              <h2 className="h-fit text-[80px] text-white font-[Poppins]">{selectedGoal.number}</h2>
+              <h2 className="h-fit text-[80px] text-neutral-50">{selectedGoal.number}</h2>
             </div>
             {/* Goal Text */}
             <div className="flex flex-col gap-4 text-white justify-center py-8">
-              <h2 className="text-xxl font-[Poppins] font-medium">{selectedGoal.title}</h2>
-              <p className="font-[Poppins] max-w-[500px]">{selectedGoal.description}</p>
+              <h3 className="text-inverse">{selectedGoal.title}</h3>
+              <p className="text-inverse max-w-[500px]">{selectedGoal.description}</p>
+              {/* Button container */}
               <div className="flex flex-row justify-end">
+                {/* Button */}
                 <div className="flex flex-row w-fit items-center bg-[#CCE0FF] rounded-full px-4 py-2
                 hover:bg-[#85B8FF]">
-                  <p className="text-black text-s font-[Poppins] self-center">Learn more</p>
+                  <p className="text-black self-center">Learn more</p>
                   <img
                   src="./icon_chevron-right.svg"
                   alt="right facing chevron icon"
@@ -241,7 +243,7 @@ export default function Index() {
             {["Newbie", "Master"].map((text, index) => (
               <div
                 key={index}
-                className={`text-sm px-2 ${
+                className={`text-caption px-2 ${
                   index === 2 ? "text-blue-500 font-medium" : "text-gray-400"
                 }`}
               >
@@ -249,21 +251,21 @@ export default function Index() {
               </div>
             ))}
           </div>
-          <div className="h-2 bg-gray-200 rounded-full">
-            <div className="h-full w-1/2 bg-blue-500 rounded-full"></div>
+          <div className="h-2 bg-outline rounded-full">
+            <div className="h-full w-1/2 bg-blue-900 rounded-full"></div>
           </div>
         </div>
 
         {/* SDG Modules */}
         <div className="py-8">
-          <h2 className="text-2xl font-bold mb-4 font-[Poppins]">
-            Goals
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-[Poppins] ">
+          <h2>Goals</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {modules.map((module, index) => (
               <div
                 key={index}
-                className={`relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer hover:bg-[#85B8FF] hover:text-white ${
+                className={`relative bg-white rounded-lg shadow-md overflow-hidden 
+                  transition-all duration-300 
+                  hover:shadow-lg cursor-pointer hover:bg-[#85B8FF] hover:text-inverse ${
                   module.locked ? "opacity-75 cursor-not-allowed" : ""
                 }`}
                 onClick={() => !module.locked && router.push("/quiz")} // Only allow navigation if not locked
@@ -281,8 +283,8 @@ export default function Index() {
                     {module.title.charAt(0)}
                   </div>
                   <div className="flex-grow ">
-                    <h3 className="font-semibold text-base">{module.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h6>{module.title}</h6>
+                    <p className="text-caption text-subtler">
                       {module.subhead}
                     </p>
                   </div>
@@ -308,7 +310,7 @@ export default function Index() {
                 </div>
                 {module.locked && (
                   <div className="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
-                    <Lock className="h-8 w-8 text-white" />
+                    <Lock className="h-8 w-8 text-inverse" />
                   </div>
                 )}
               </div>
@@ -317,12 +319,12 @@ export default function Index() {
         </div>
 
         {/* Daily News */}
-        <div className="bg-gray-700 text-white p-4 mb-6 rounded-lg">
-          <h2 className="font-bold mb-2 flex items-center">
-            <Bell className="h-5 w-5 mr-2" />
+        <div className="bg-blue-900 text-inverse p-4 mb-6 rounded-lg ">
+          <h4 className="mb-2 flex items-center text-inverse">
+            <Bell className="h-5 w-5 mr-2 stroke-neutral-50" />
             Daily News
-          </h2>
-          <p className="text-sm">
+          </h4>
+          <p className="text-caption text-inverse">
             Keep up to date with the latest news on Sustainable Development
             Goals. Check out the latest articles, events, and updates related to
             the SDGs!

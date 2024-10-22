@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
   :root {
     --background: 200 20% 98%;
@@ -9,6 +10,7 @@
     --btn-background-hover: 200 10% 89%;
     --foreground: 200 50% 3%;
   }
+  
 
   @media (prefers-color-scheme: dark) {
     :root {
@@ -18,10 +20,69 @@
       --foreground: 200 20% 96%;
     }
   }
-}
 
-@layer base {
   * {
-    @apply border-foreground/20;
+    /* @apply border-foreground/20; */
+    @apply text-neutral-950;
+  }
+
+  h1 {
+    @apply text-h1 font-semibold mb-6;
+  }
+  h2 {
+    @apply text-h2 font-semibold mb-4;
+  }
+  h3 {
+    @apply text-h3 font-medium mb-3;
+  }
+  h4 {
+    @apply text-h4 font-medium mb-3;
+  }
+  h5 {
+    @apply text-h5 font-medium mb-2;
+  }
+  h6 {
+    @apply text-h6 font-medium mb-1;
+  }
+  p {
+    @apply text-p font-normal;
+  }
+  caption {
+    @apply text-caption font-normal mt-2;
   }
 }
+
+@layer utilities {
+  .text-default {
+    @apply text-neutral-900 dark:text-neutral-100;
+  }
+  
+  .text-subtle {
+    @apply text-neutral-700 dark:text-neutral-300;
+  }
+  
+  .text-subtler {
+    @apply text-neutral-500 dark:text-neutral-400;
+  }
+  
+  .text-subtlest {
+    @apply text-neutral-400 dark:text-neutral-500;
+  }
+
+  .text-inverse {
+    @apply text-neutral-50 dark:text-neutral-900;
+  }
+  
+  .bg-default {
+    @apply bg-neutral-50 dark:bg-neutral-900;
+  }
+  
+  .bg-surface {
+    @apply bg-neutral-100 dark:bg-neutral-800;
+  }
+  
+  .bg-outline {
+    @apply bg-neutral-200 dark:bg-neutral-700;
+  }
+}
+

@@ -52,6 +52,60 @@
   }
 }
 
+@layer components {
+  /* Base button styles */
+  .btn {
+    @apply px-4 py-2 rounded-full font-medium transition-all duration-200 
+           inline-flex items-center justify-center gap-2
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply btn
+           bg-blue-600 text-white
+           hover:bg-blue-700
+           active:bg-blue-800
+           disabled:bg-blue-300;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply btn
+           bg-gray-200 text-gray-900
+           hover:bg-gray-300
+           active:bg-gray-400
+           disabled:bg-gray-100;
+  }
+
+  /* Outline Button */
+  .btn-outline {
+    @apply btn
+           border-2 border-blue-600 text-blue-600
+           hover:bg-blue-50
+           active:bg-blue-100
+           disabled:border-blue-300 disabled:text-blue-300;
+  }
+
+  /* Ghost Button */
+  .btn-ghost {
+    @apply btn
+           text-blue-600
+           hover:bg-blue-50
+           active:bg-blue-100
+           disabled:text-blue-300;
+  }
+
+  /* Button size variations */
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+}
+
 @layer utilities {
   .text-default {
     @apply text-neutral-900 dark:text-neutral-100;

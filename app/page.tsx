@@ -218,15 +218,14 @@ export default function Index() {
               <h2 className="h-fit text-[80px] text-neutral-50">{selectedGoal.number}</h2>
             </div>
             {/* Goal Text */}
-            <div className="flex flex-col gap-4 text-white justify-center py-8">
+            <div className="flex flex-col gap-4 text-white justify-center py-8 px-4">
               <h3 className="text-inverse">{selectedGoal.title}</h3>
               <p className="text-inverse max-w-[500px]">{selectedGoal.description}</p>
               {/* Button container */}
               <div className="flex flex-row justify-end">
                 {/* Button */}
-                <div className="flex flex-row w-fit items-center bg-[#CCE0FF] rounded-full px-4 py-2
-                hover:bg-[#85B8FF]">
-                  <p className="text-black self-center">Learn more</p>
+                <div className="btn-primary">
+                  <p className="self-center">Learn more</p>
                   <img
                   src="./icon_chevron-right.svg"
                   alt="right facing chevron icon"

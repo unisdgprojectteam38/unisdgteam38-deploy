@@ -123,19 +123,19 @@ const QuizPage = () => {
       <div className="space-y-10">
         {/* Passage section */}
         <div className="bg-blue-50 p-8 rounded-lg">
-          <h2 className="text-blue-700 uppercase text-sm font-semibold mb-4">
+          <h2 className="text-blue-700 uppercase caption font-semibold mb-4">
             WATER SUSTAINABILITY
           </h2>
-          <p className="text-base leading-relaxed">
+          <p className="leading-relaxed">
             {questions[currentQuestion].question}
           </p>
         </div>
 
         {/* Quiz section */}
         <div>
-          <h2 className="text-xl font-semibold mb-6">
+          <h5 className="mb-6">
             Select the correct answer(s):
-          </h2>
+          </h5>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {questions[currentQuestion].options.map((option, index) => (
               <button
@@ -174,9 +174,9 @@ const QuizPage = () => {
 
         {showCongrats && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-              <h2 className="text-2xl font-bold mb-4">Congrats!!</h2>
-              <p className="text-lg">
+            <div className="bg-default p-8 rounded-lg shadow-lg text-center">
+              <h2 className="mb-4">Congrats!!</h2>
+              <p>
                 You've completed the quiz on water sustainability!
               </p>
             </div>

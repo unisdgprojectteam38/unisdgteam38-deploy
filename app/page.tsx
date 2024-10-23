@@ -284,7 +284,7 @@ export default function Index() {
                   </div>
                   <div className="flex-grow ">
                     <h6>{module.title}</h6>
-                    <p className="text-caption text-subtler">
+                    <p className="caption">
                       {module.subhead}
                     </p>
                   </div>

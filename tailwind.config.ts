@@ -54,16 +54,6 @@ module.exports = {
         outline: 'neutral-200',    // Light gray
       },
 
-      fontSize: {
-        'h1': ['2.5rem', { lineHeight: '1.2' }],  // 40px
-        'h2': ['2rem', { lineHeight: '1.25' }],   // 32px
-        'h3': ['1.75rem', { lineHeight: '1.3' }], // 28px
-        'h4': ['1.5rem', { lineHeight: '1.35' }], // 24px
-        'h5': ['1.25rem', { lineHeight: '1.4' }], // 20px
-        'h6': ['1rem', { lineHeight: '1.45' }],   // 16px
-        'p': ['1rem', { lineHeight: '1.2' }],   // 16px
-        'caption': ['0.8rem', { lineHeight: '1.45' }],   // 12.8px
-      },
 
     },
   },

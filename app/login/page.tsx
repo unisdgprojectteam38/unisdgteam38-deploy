@@ -75,7 +75,7 @@ export default function Login({
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
       <Link
         href="/"
-        className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm"
+        className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-subtler hover:bg-btn-background-hover hover:text-default flex items-center group text-sm"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -94,40 +94,46 @@ export default function Login({
         Back
       </Link>
 
-      <form className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-        <label className="text-md" htmlFor="email">
-          Email
-        </label>
-        <input
-          className="rounded-md px-4 py-2 bg-inherit border mb-6"
-          name="email"
-          placeholder="you@example.com"
-          required
-        />
-        <label className="text-md" htmlFor="password">
-          Password
-        </label>
-        <input
-          className="rounded-md px-4 py-2 bg-inherit border mb-6"
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          required
-        />
+      <form className="flex-1 flex flex-col w-full justify-center gap-6 text-foreground">
+        <div className="flex flex-col gap-2">
+          <label className="text-subtle text-sm font-semibold" htmlFor="email">
+            Email
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full px-4 py-2 text-subtlest leading-tight focus:outline-none focus:shadow-outline"
+            name="email"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-subtle text-sm font-semibold" htmlFor="password">
+            Password
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full px-4 py-2 text-subtlest leading-tight focus:outline-none focus:shadow-outline"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-2">
         <SubmitButton
           formAction={signIn}
-          className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2"
+          className="bg-blue-500 rounded-full px-4 py-2 text-inverse mb-2"
           pendingText="Signing In..."
         >
           Sign In
         </SubmitButton>
         <SubmitButton
           formAction={signUp}
-          className="border border-foreground/20 rounded-md px-4 py-2 text-foreground mb-2"
+          className="border border-foreground/20 rounded-full px-4 py-2 text-foreground mb-2"
           pendingText="Signing Up..."
         >
           Sign Up
         </SubmitButton>
+        </div>
         <div className="flex items-center my-4">
           <div className="flex-grow border-t border-foreground/20"></div>
           <span className="mx-4 text-foreground/60">or</span>
@@ -135,7 +141,7 @@ export default function Login({
         </div>
         <SubmitButton
         formAction={signInWithGoogle}
-        className="bg-white text-black rounded-md px-4 py-2 mb-2 flex items-center justify-center"
+        className="bg-surface border stroke-outline rounded-full px-4 py-2 mb-2 flex items-center justify-center text-default "
         pendingText="Signing In with Google...">     
         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
           <path
@@ -156,7 +162,7 @@ export default function Login({
           />
           <path fill="none" d="M1 1h22v22H1z" />
         </svg>
-        Sign In with Google
+        Sign in with Google
         </SubmitButton>
         {searchParams?.message && (
           <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">

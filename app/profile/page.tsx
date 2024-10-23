@@ -78,7 +78,7 @@ const ProfileSettings: React.FC = () => {
               type="text"
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
-              className="shadow appearance-none border rounded w-full px-4 py-2  text-subtlest leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full px-4 py-2 text-subtlest leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Profile Name"
             />
           </div>

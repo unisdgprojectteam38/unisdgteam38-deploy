@@ -94,7 +94,12 @@ export default function Login({
         Back
       </Link>
 
-      <form className="flex-1 flex flex-col w-full justify-center gap-6 text-foreground">
+      <form className="flex flex-col rounded w-full px-8 py-6 justify-center gap-4 text-default bg-surface">
+        <div className="flex flex-col w-full justify-center items-center gap-4 text-default">
+          <img src="/UNiSDG-Logo-1.svg" alt="UNiSDG Logo" className="w-[80px] self-center" />
+          <h3>UNi SDG</h3>
+        </div>
+        
         <div className="flex flex-col gap-2">
           <label className="text-subtle text-sm font-semibold" htmlFor="email">
             Email
@@ -128,7 +133,7 @@ export default function Login({
         </SubmitButton>
         <SubmitButton
           formAction={signUp}
-          className="border border-foreground/20 rounded-full px-4 py-2 text-foreground mb-2"
+          className="border border-foreground/20 rounded-full px-4 py-2 text-default mb-2"
           pendingText="Signing Up..."
         >
           Sign Up
@@ -141,7 +146,7 @@ export default function Login({
         </div>
         <SubmitButton
         formAction={signInWithGoogle}
-        className="bg-surface border stroke-outline rounded-full px-4 py-2 mb-2 flex items-center justify-center text-default "
+        className="flex items-center justify-center border border-foreground/20 rounded-full px-4 py-2 text-default mb-2"
         pendingText="Signing In with Google...">     
         <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
           <path

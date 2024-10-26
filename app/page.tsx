@@ -3,8 +3,16 @@ import React, { useState, useEffect } from "react";
 import { Bell, User, Menu, Check, PlayCircle, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NewsCard from "@/components/NewsCard";
+import NewsCarousel from "@/components/NewsCarousel";
 import SDGGrid from "@/components/SDGGrid";
 import { createClient } from "@/utils/supabase/client";
+
+interface Article {
+  title: string;
+  description: string;
+  url: string;
+  urlToImage: string;
+}
 
 interface SDG {
   sdg_id: number;
@@ -23,6 +31,7 @@ export default function Index() {
   const [user, setUser] = useState<any>(null);
   const [sdgs, setSdgs] = useState<SDG[]>([]);
   const [userSdgProgress, setUserSdgProgress] = useState<UserSdgProgress[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const router = useRouter();
   const supabase = createClient();
 
@@ -64,6 +73,21 @@ export default function Index() {
       }
     };
     fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const fetchSDGNews = async () => {
+      try {
+        const response = await fetch('/api/news');
+        if (!response.ok) throw new Error('Failed to fetch news');
+        const data = await response.json();
+        setArticles(data.articles.slice(0, 10)); // Only take first 10 articles
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
+    };
+
+    fetchSDGNews();
   }, []);
 
   const fetchSdgs = async () => {
@@ -248,28 +272,32 @@ export default function Index() {
             the SDGs!
           </p>
         </div>
-        
-        {/* News card container */}
-        <div className="flex flex-row justify-center items-start h-[360px] px-6 py-4 gap-8">
-          <NewsCard 
-            img="/EVAC-header-desktop.jpg"
-            title="End Child Violence"
-            description="1 in 2 children are victims of violence. The power to end it is in our hands."
-            href="https://www.globalgoals.org/endchildviolence/"
-          />
-          <NewsCard 
-            img="/news-article-2.jpg"
-            title="Makes Global Sense"
-            description="If you had to choose between coffee and bread, which would it be?"
-            href="https://www.globalgoals.org/makestotalsense/"
-          />
-          <NewsCard 
-            img="/news-article-3.jpg"
-            title="Global Goals"
-            description="What are the global goals?"
-            href="https://www.globalgoals.org/news/what-are-the-global-goals/"
-          />
-        </div>
+
+        {/* News Carousel Section */}
+        {articles.length > 0 ? (
+          <NewsCarousel articles={articles} />
+        ) : (
+          <div className="flex flex-row justify-center items-start h-[360px] px-6 py-4 gap-8">
+            <NewsCard 
+              img="/EVAC-header-desktop.jpg"
+              title="End Child Violence"
+              description="1 in 2 children are victims of violence. The power to end it is in our hands."
+              href="https://www.globalgoals.org/endchildviolence/"
+            />
+            <NewsCard 
+              img="/news-article-2.jpg"
+              title="Makes Global Sense"
+              description="If you had to choose between coffee and bread, which would it be?"
+              href="https://www.globalgoals.org/makestotalsense/"
+            />
+            <NewsCard 
+              img="/news-article-3.jpg"
+              title="Global Goals"
+              description="What are the global goals?"
+              href="https://www.globalgoals.org/news/what-are-the-global-goals/"
+            />
+          </div>
+        )}
       </main>
     </div>
   );

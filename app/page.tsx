@@ -52,15 +52,6 @@ export default function Index() {
     description: 'Ensure availability and sustainable management of water and sanitation for all.',
   });
 
-  const handleSelectGoal = (goal: { number: number }) => {
-    const newGoal = sdgGoals[goal.number - 1];
-    setSelectedGoal({
-      number: goal.number,
-      title: newGoal.title,
-      description: newGoal.description,
-    });
-  };
-
   useEffect(() => {
     const fetchUserData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -106,12 +97,20 @@ export default function Index() {
     return progress ? progress.progress : 'todo';
   };
 
+  const handleSelectGoal = (goal: { number: number }) => {
+    const newGoal = sdgGoals[goal.number - 1];
+    setSelectedGoal({
+      number: goal.number,
+      title: newGoal.title,
+      description: newGoal.description,
+    });
+  };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 md:flex-row">
+    <div className="flex flex-col h-screen bg-default md:flex-row">
       {/* Mobile menu button */}
       <button
-        className="md:hidden fixed top-4 left-4 z-20 p-2 bg-white rounded-md shadow-md"
+        className="md:hidden fixed top-4 left-4 z-20 p-2 bg-surface rounded-md shadow-md"
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
         <Menu className="h-6 w-6" />
@@ -121,8 +120,7 @@ export default function Index() {
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-white shadow-md overflow-y-auto md:block`}
-        style={{ margin: "0", padding: "0" }}
+        } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-surface shadow-md overflow-y-auto md:block`}
       >
         <div className="p-4">
           <div className="flex items-center space-x-2 mb-6">
@@ -144,8 +142,8 @@ export default function Index() {
                 href="#"
                 className={`block py-2 px-4 rounded ${
                   index === 0
-                    ? "bg-blue-100 text-blue-600"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                    : "text-subtle hover:bg-surface"
                 }`}
               >
                 {item}
@@ -159,27 +157,28 @@ export default function Index() {
       <main className="flex-1 overflow-y-auto p-8 md:ml-0">
         {/* Hero Section */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-4 font-[Poppins]">Sustainable Development Goals</h1>
-          <div className="bg-indigo-900 p-4 rounded-lg flex flex-row gap-8">
+          <h1>Sustainable Development Goals</h1>
+          <div className="bg-sdg-6 p-4 rounded-lg flex flex-row gap-8">
             <div className="w-[600px]">
               <SDGGrid onSelectGoal={handleSelectGoal} />
             </div>
             {/* Goal # */}
             <div className="flex flex-col justify-center">
-              <h2 className="h-fit text-[150px] text-white font-[Poppins]">{selectedGoal.number}</h2>
+              <h2 className="h-fit text-[80px] text-inverse">{selectedGoal.number}</h2>
             </div>
             {/* Goal Text */}
-            <div className="flex flex-col gap-4 text-white justify-center py-8">
-              <h2 className="text-xxl font-[Poppins] font-medium">{selectedGoal.title}</h2>
-              <p className="font-[Poppins] max-w-[500px]">{selectedGoal.description}</p>
+            <div className="flex flex-col gap-4 justify-center py-8 px-4">
+              <h3 className="text-inverse">{selectedGoal.title}</h3>
+              <p className="text-inverse max-w-[500px]">{selectedGoal.description}</p>
               <div className="flex flex-row justify-end">
-                <div className="flex flex-row w-fit items-center bg-[#CCE0FF] rounded-full px-4 py-2 hover:bg-[#85B8FF]">
-                  <p className="text-black text-s font-[Poppins] self-center">Learn more</p>
+                <button className="btn-primary">
+                  <span>Learn more</span>
                   <img
                     src="./icon_chevron-right.svg"
-                    alt=""
+                    alt="right facing chevron icon"
+                    className="w-4 h-4"
                   />
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -188,47 +187,38 @@ export default function Index() {
         {/* Module Progress */}
         <div className="mb-8 overflow-x-auto">
           <div className="flex justify-between items-center mb-2 min-w-max">
-            {["Newbie", "Master"].map((text, index) => (
-              <div
-                key={index}
-                className={`text-sm px-2 ${
-                  index === 2 ? "text-blue-500 font-medium" : "text-gray-400"
-                }`}
-              >
-                {text}
-              </div>
-            ))}
+            <div className="text-subtler">Newbie</div>
+            <div className="text-default">Master</div>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full">
-            <div className="h-full w-1/2 bg-blue-500 rounded-full"></div>
+          <div className="h-2 bg-surface rounded-full">
+            <div className="h-full w-1/2 bg-sdg-6 rounded-full"></div>
           </div>
         </div>
 
         {/* SDG Modules */}
         <div className="py-8">
-          <h2 className="text-2xl font-bold mb-4 font-[Poppins]">Goals</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-[Poppins]">
+          <h2>Goals</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sdgs.map((sdg) => {
               const progress = getSdgProgress(sdg.sdg_id);
               return (
                 <div
                   key={sdg.sdg_id}
-                  className={`relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer hover:bg-[#85B8FF] hover:text-white ${
-                    progress === 'doing' ? "doing" : "doing"
+                  className={`relative bg-surface rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
+                    progress === 'doing' ? "opacity-75" : ""
                   }`}
-                  onClick={() => router.push(`/sdg/${sdg.sdg_id}`)}
+                  onClick={() => !progress.includes('doing') && router.push(`/sdg/${sdg.sdg_id}`)}
                 >
                   <div className="p-4 flex items-start">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
-                      progress === 'done' ? "bg-green-100 text-green-500" :
-                      progress === 'doing' ? "bg-blue-100 text-blue-500" :
-                      "bg-gray-200 text-gray-500"
-                    }`}>
+                    <div 
+                      className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 text-inverse`}
+                      style={{ backgroundColor: `var(--sdg-${sdg.sdg_id})` }}
+                    >
                       {sdg.sdg_display_id}
                     </div>
                     <div className="flex-grow">
-                      <h3 className="font-semibold text-base">{sdg.title}</h3>
-                      <p className="text-sm text-gray-500 mt-1">{sdg.description}</p>
+                      <h6>{sdg.title}</h6>
+                      <p className="caption">{sdg.description}</p>
                     </div>
                     <div className="ml-2 flex-shrink-0">
                       {progress === 'done' && <Check className="h-5 w-5 text-green-500" />}
@@ -236,8 +226,8 @@ export default function Index() {
                     </div>
                   </div>
                   {progress === 'doing' && (
-                    <div className="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center">
-                      <Lock className="h-8 w-8 text-white" />
+                    <div className="absolute inset-0 bg-neutral-900/80 flex items-center justify-center">
+                      <Lock className="h-8 w-8 text-inverse" />
                     </div>
                   )}
                 </div>
@@ -247,12 +237,12 @@ export default function Index() {
         </div>
 
         {/* Daily News */}
-        <div className="bg-gray-700 text-white p-4 mb-6 rounded-lg">
-          <h2 className="font-bold mb-2 flex items-center">
+        <div className="bg-sdg-6 p-4 mb-6 rounded-lg">
+          <h4 className="flex items-center text-inverse">
             <Bell className="h-5 w-5 mr-2" />
             Daily News
-          </h2>
-          <p className="text-sm">
+          </h4>
+          <p className="text-inverse">
             Keep up to date with the latest news on Sustainable Development
             Goals. Check out the latest articles, events, and updates related to
             the SDGs!

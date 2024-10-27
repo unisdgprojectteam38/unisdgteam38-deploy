@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Section } from '@/types/infographics';
+import { Section } from '@/types/sections';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -39,6 +39,9 @@ const SectionCarousel: React.FC<SectionCarouselProps> = ({ sectionTypes, onSelec
                 <div key={section.type} className="w-full flex-shrink-0 px-4">
                   <div className="border rounded-lg p-4 h-64 flex flex-col items-center justify-center">
                     <h3 className="font-semibold text-lg mb-2">{section.title}</h3>
+                    <p className="text-center mb-4">
+                      {getDescriptionForSectionType(section.type)}
+                    </p>
                     <Button onClick={() => onSelect(section)}>Select</Button>
                   </div>
                 </div>
@@ -73,5 +76,22 @@ const SectionCarousel: React.FC<SectionCarouselProps> = ({ sectionTypes, onSelec
     </div>
   );
 };
+
+function getDescriptionForSectionType(type: Section['type']): string {
+  switch (type) {
+    case 'quiz':
+      return 'Add a quiz section with multiple choice questions';
+    case 'text':
+      return 'Add a text section for content and explanations';
+    case 'resourceManagerGame':
+      return 'Add a resource management game section';
+    case 'flashcards':
+      return 'Add a flashcard game for memorization';
+    case 'events':
+      return 'Add an events section to showcase important dates';
+    default:
+      return 'Add a new section to your module';
+  }
+}
 
 export default SectionCarousel;

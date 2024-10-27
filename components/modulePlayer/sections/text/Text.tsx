@@ -1,9 +1,65 @@
-import React from "react";
-import { TextSection } from "@/types/sections"; // Import the TextSection type
+import React, { useState, useEffect } from "react";
+import { TextSection, Section } from "@/types/sections";
+import { Button } from "@/components/ui/Button";
+import { Input, Textarea } from "@/components/ui/Input";
 
-const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) => {
-  const { data, onComplete } = section;
-  return (
+interface EditableTextSectionComponentProps {
+  section: TextSection;
+  onUpdate: (updatedSection: Section) => void;
+  isEditable?: boolean;
+}
+
+const EditableTextSectionComponent: React.FC<EditableTextSectionComponentProps> = ({
+  section,
+  onUpdate,
+  isEditable = false,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [localSection, setLocalSection] = useState(section);
+
+  useEffect(() => {
+    setLocalSection(section);
+  }, [section]);
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setLocalSection({
+      ...localSection,
+      data: { ...localSection.data, content: e.target.value },
+    });
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSection({ ...localSection, title: e.target.value });
+  };
+
+  const handleSave = () => {
+    onUpdate(localSection);
+    setIsEditing(false);
+  };
+
+  const renderEditMode = () => (
+    <div className="bg-white p-6 rounded-lg shadow-lg">
+      <h3 className="text-xl font-bold mb-4">Edit Text Section</h3>
+      <Input
+        type="text"
+        value={localSection.title}
+        onChange={handleTitleChange}
+        className="w-full mb-4 p-2 border rounded"
+        placeholder="Section Title"
+      />
+      <Textarea
+        value={localSection.data.content}
+        onChange={handleContentChange}
+        className="w-full h-64 mb-4 p-2 border rounded"
+        placeholder="Enter your content here"
+      />
+      <Button onClick={handleSave} variant="primary" className="w-full">
+        Save Changes
+      </Button>
+    </div>
+  );
+
+  const renderViewMode = () => (
     <div
       className="bg-white rounded-lg shadow-lg p-8 flex flex-col justify-between min-h-[468px]"
       style={{ boxShadow: "rgba(40, 46, 62, 0.12) 0px 4px 16px 0px" }}
@@ -11,7 +67,7 @@ const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) =
       <div>
         <div className="flex justify-between items-center mb-6">
           <span className="text-sm font-semibold text-[#586380]">
-            {section.order_id + ". " + section.title}
+            {localSection.order_id + ". " + localSection.title}
           </span>
           <div className="flex items-center">
             <button className="p-1 bg-gray-200 rounded-full mr-2">
@@ -39,17 +95,25 @@ const TextSectionComponent: React.FC<{ section: TextSection }> = ({ section }) =
           className="text-[20px] leading-[32.5px] mb-8 text-[#282e3e]"
           style={{ WebkitFontSmoothing: "antialiased" }}
         >
-          {data.content}
+          {localSection.data.content}
         </p>
       </div>
-      <button
-        onClick={onComplete}
-        className="w-full py-3 rounded-md text-lg font-semibold bg-blue-500 text-white hover:bg-blue-600"
+      <Button
+        onClick={localSection.onComplete}
+        variant="primary"
+        className="w-full"
       >
         Continue
-      </button>
+      </Button>
+      {isEditable && (
+        <Button onClick={() => setIsEditing(true)} variant="secondary" className="mt-4">
+          Edit Section
+        </Button>
+      )}
     </div>
   );
+
+  return isEditing ? renderEditMode() : renderViewMode();
 };
 
-export default TextSectionComponent;
+export default EditableTextSectionComponent;

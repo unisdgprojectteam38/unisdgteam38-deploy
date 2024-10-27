@@ -16,8 +16,8 @@ export interface BaseSection {
   id: string;
   title: string;
   order_id: number;
+  type: 'quiz' | 'text' | 'resourceManagerGame' | 'flashcards' | 'header' | 'events';
   data: any;
-  onComplete: () => void;
 }
 
 export interface QuizSection extends BaseSection {
@@ -54,9 +54,36 @@ export interface FlashcardGameSection extends BaseSection {
   };
 }
 
-export type Section =
-  | QuizSection
-  | TextSection
-  | ResourceManagerGameSection
-  | FlashcardGameSection
-  | HeaderSection;
+export interface EventsSection extends BaseSection {
+  type: "events";
+  data: {
+    title: string;
+    description: string;
+    events: Event[];
+  };
+}
+
+export interface Event {
+  imgSrc: string;
+  title: string;
+  date: string;
+  href?: string;
+}
+
+export type Section = QuizSection | TextSection | ResourceManagerGameSection | FlashcardGameSection | HeaderSection | EventsSection;
+
+// Add these new interfaces
+export interface Module {
+  id: string;
+  title: string;
+  subtitle: string;
+  order_id: number;
+  sections: Section[];
+}
+
+export interface SDG {
+  title: string;
+  description: string;
+  sdg_display_id: number;
+  modules: Module[];
+}

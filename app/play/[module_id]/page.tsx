@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ModulePlayer from "@/components/modulePlayer/ModulePlayer";
 import { Section, HeaderData } from "@/types/sections";
 
@@ -20,10 +20,12 @@ interface Module {
   title: string;
   subtitle?: string;
   sdg_id: number;
+  order_id: number;
 }
 
 const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   const [user, setUser] = useState<User | null>(null);
@@ -31,6 +33,8 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   const [module, setModule] = useState<Module | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
+  const [nextModuleId, setNextModuleId] = useState<string | null>(null);
+  const sectionsRef = useRef<{ [key: string]: HTMLElement | null }>({});
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -39,6 +43,24 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
         router.push("/login");
       } else {
         setUser(user);
+        
+        // Check if user has a profile, create one if not
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+  
+        if (profileError && profileError.code === 'PGRST116') {
+          // Profile doesn't exist, create one
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, role: 'user' });
+  
+          if (createError) {
+            console.error('Error creating profile:', createError);
+          }
+        }
       }
     };
     fetchUserData();
@@ -50,12 +72,32 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
         try {
           const { data: moduleData, error: moduleError } = await supabase
             .from("module")
-            .select("module_id, title, subtitle, sdg_id")
+            .select("module_id, title, subtitle, sdg_id, order_id")
             .eq("module_id", module_id)
             .single();
 
           if (moduleError) throw moduleError;
           setModule(moduleData);
+
+          // Fetch next module
+          try {
+            const { data: nextModule, error } = await supabase
+              .from("module")
+              .select("module_id")
+              .eq("sdg_id", moduleData.sdg_id)
+              .gt("order_id", moduleData.order_id)
+              .order("order_id", { ascending: true })
+              .limit(1)
+              .single();
+          
+            if (error && error.code !== 'PGRST116') {
+              console.error("Error fetching next module:", error);
+            }
+            setNextModuleId(nextModule?.module_id || null);
+          } catch (error) {
+            console.error("Unexpected error fetching next module:", error);
+            setNextModuleId(null);
+          }
 
           const { data: sectionsData, error: sectionsError } = await supabase
             .from("section")
@@ -65,26 +107,13 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
 
           if (sectionsError) throw sectionsError;
 
-          const formattedSections: Section[] = sectionsData.map((section: any) => {
-            const baseSection = {
-              id: section.section_id,
-              title: section.title,
-              order_id: section.order_id,
-              type: section.section_type as Section['type'],
-              data: section.data,
-              onComplete: () => console.log(`Completed Section ${section.order_id}: ${section.title}`),
-            };
-
-            if (section.section_type === 'header') {
-              return {
-                ...baseSection,
-                type: 'header',
-                data: section.data as HeaderData,
-              };
-            }
-
-            return baseSection;
-          });
+          const formattedSections: Section[] = sectionsData.map((section: any) => ({
+            id: section.section_id,
+            title: section.title,
+            order_id: section.order_id,
+            type: section.section_type as Section['type'],
+            data: section.data,
+          }));
 
           // Add header section if it doesn't exist
           if (!formattedSections.some(section => section.type === 'header')) {
@@ -103,7 +132,6 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
                 definitionTitle: 'About This Module',
                 definitionPara: 'Explore and learn about important concepts',
               } as HeaderData,
-              onComplete: () => console.log('Header section viewed'),
             };
             formattedSections.unshift(headerSection);
           }
@@ -119,21 +147,54 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
     fetchModuleAndSections();
   }, [user, module_id, supabase]);
 
+  useEffect(() => {
+    const handleScrollToSection = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const sectionId = hash.replace('#section-', '');
+        const sectionElement = sectionsRef.current[sectionId];
+        if (sectionElement) {
+          setTimeout(() => {
+            sectionElement.scrollIntoView({ behavior: 'smooth' });
+          }, 100); // Small delay to ensure the component is fully rendered
+        }
+      }
+    };
+
+    if (!isLoading) {
+      handleScrollToSection();
+    }
+  }, [isLoading, searchParams]);
+
   const handleMarkAsComplete = async () => {
     if (user && module) {
       try {
+        // Fetch the user's profile first
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+  
+        if (profileError) throw profileError;
+  
         const { error } = await supabase.from("usermoduleprogress").upsert({
-          user_id: user.id,
+          user_id: profile.id,
           module_id: module.module_id,
           progress: "done",
           last_updated: new Date().toISOString(),
         });
+  
         if (error) throw error;
         console.log("Progress updated successfully");
         setShowCompletionOverlay(true);
         setTimeout(() => {
           setShowCompletionOverlay(false);
-          router.push(`/sdg/${module.sdg_id}`);
+          if (nextModuleId) {
+            router.push(`/play/${nextModuleId}`);
+          } else {
+            router.push(`/sdg/${module.sdg_id}`);
+          }
         }, 3000);
       } catch (error) {
         console.error("Error updating progress:", error);
@@ -162,11 +223,25 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           module_id: module.module_id,
           title: module.title,
           subtitle: module.subtitle ?? "",
+          sdg_id: module.sdg_id.toString(),
+          order_id: module.order_id,
         }}
         sections={sections}
+        sectionsRef={sectionsRef}
         onComplete={handleMarkAsComplete}
         moduleTitle={module.title}
+        nextModuleId={nextModuleId}
       />
+      {nextModuleId && (
+        <div className="fixed bottom-4 right-4">
+          <button
+            onClick={() => router.push(`/play/${nextModuleId}`)}
+            className="bg-blue-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-blue-600 transition duration-300"
+          >
+            Next Module
+          </button>
+        </div>
+      )}
     </div>
   );
 };

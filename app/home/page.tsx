@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { Lock, ChevronRight } from "lucide-react";
+import { CheckCircle, ChevronRight } from "lucide-react";
 
 // Define types for SDG and UserSdgProgress
 interface SDG {
@@ -13,7 +13,7 @@ interface SDG {
 
 interface UserSdgProgress {
   sdg_id: number;
-  progress: number;
+  progress: 'todo' | 'doing' | 'done';
 }
 
 export default function Home() {
@@ -24,21 +24,37 @@ export default function Home() {
   const [sdgs, setSdgs] = useState<SDG[]>([]);
   const [userSdgProgress, setUserSdgProgress] = useState<UserSdgProgress[]>([]);
 
+
+  // TODO: FIX ADD IF NOT INITIALIZED PROFILE
   useEffect(() => {
     const fetchUserData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
         setUser(user);
+        
+        // Check if user has a profile, create one if not
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+  
+        if (profileError && profileError.code === 'PGRST116') {
+          // Profile doesn't exist, create one
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, role: 'user' });
+  
+          if (createError) {
+            console.error('Error creating profile:', createError);
+          }
+        }
       }
     };
-
     fetchUserData();
-  }, []);
+  }, [supabase, router]);
 
   useEffect(() => {
     const fetchSdgs = async () => {
@@ -71,13 +87,13 @@ export default function Home() {
     fetchUserSdgProgress();
   }, [user]);
 
-  const getSdgProgress = (sdgId: number): number => {
+  const getSdgProgress = (sdgId: number): 'todo' | 'doing' | 'done' => {
     const progress = userSdgProgress.find((p) => p.sdg_id === sdgId);
-    return progress ? progress.progress : 0;
+    return progress ? progress.progress : 'todo';
   };
 
   const getNextAvailableSdg = (): SDG | undefined => {
-    return sdgs.find((sdg) => getSdgProgress(sdg.sdg_id) < 100) || sdgs[0];
+    return sdgs.find((sdg) => getSdgProgress(sdg.sdg_id) !== 'done') || sdgs[0];
   };
 
   return (
@@ -108,38 +124,39 @@ export default function Home() {
           <div className="bg-white rounded-3xl p-6 shadow-md">
             <h2 className="text-xl font-semibold mb-4 border-b pb-2">SDGs</h2>
             <ul className="space-y-4">
-              {sdgs.map((sdg, index) => {
+              {sdgs.map((sdg) => {
                 const progress = getSdgProgress(sdg.sdg_id);
-                const isLocked =
-                  index > 0 && getSdgProgress(sdgs[index - 1].sdg_id) < 100;
 
                 return (
                   <li
                     key={sdg.sdg_id}
-                    className={`bg-[#F0F3F9] rounded-xl p-4 ${
-                      isLocked ? "opacity-50" : ""
+                    className={`rounded-xl p-4 ${
+                      progress === 'done' ? 'bg-blue-100' : 'bg-[#F0F3F9]'
                     }`}
                   >
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[#4B8BF4] font-semibold">
                         SDG {sdg.sdg_display_id} • SEE DETAILS
                       </span>
-                      <span className="text-gray-500">{progress} / 100</span>
+                      {progress === 'done' && (
+                        <span className="text-blue-500 flex items-center">
+                          <CheckCircle className="w-5 h-5 mr-1" /> Completed
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-xl font-bold mb-2">{sdg.title}</h3>
                     <div className="flex justify-between items-center">
                       <button
                         onClick={() => router.push(`/sdg/${sdg.sdg_id}`)}
-                        className="bg-[#4B8BF4] text-white py-2 px-4 rounded-full font-semibold hover:bg-opacity-90 transition duration-300"
-                        disabled={isLocked}
+                        className={`py-2 px-4 rounded-full font-semibold transition duration-300 ${
+                          progress === 'done'
+                            ? 'bg-blue-500 text-white hover:bg-blue-600'
+                            : 'bg-[#4B8BF4] text-white hover:bg-opacity-90'
+                        }`}
                       >
-                        {progress > 0 ? "Continue" : "Start"}
+                        {progress === 'done' ? "Review" : "Start"}
                       </button>
-                      {isLocked ? (
-                        <Lock className="text-gray-400 w-6 h-6" />
-                      ) : (
-                        <ChevronRight className="text-gray-400 w-6 h-6" />
-                      )}
+                      <ChevronRight className="text-gray-400 w-6 h-6" />
                     </div>
                   </li>
                 );

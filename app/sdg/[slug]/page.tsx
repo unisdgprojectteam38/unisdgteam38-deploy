@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { CheckCircle, ChevronRight, Lock } from "lucide-react";
+import { CheckCircle, ChevronRight } from "lucide-react";
 
 // Define types
 interface User {
@@ -34,11 +34,8 @@ const RaindropSVG = () => (
   </svg>
 );
 
-export default function SdgDetail({
-  params: { slug },
-}: {
-  params: { slug: string };
-}) {
+export default function SdgDetail({ params: { slug } }: { params: { slug: string } }) {
+  
   const router = useRouter();
   const supabase = createClient();
 
@@ -48,18 +45,34 @@ export default function SdgDetail({
   const [userModuleProgress, setUserModuleProgress] = useState<UserModuleProgress[]>([]);
   const [featuredModule, setFeaturedModule] = useState<Module | null>(null);
 
+  // TODO: FIX ADD IF NOT INITIALIZED PROFILE
   useEffect(() => {
     const fetchUserData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
-        setUser(user as User);
+        setUser(user);
+        
+        // Check if user has a profile, create one if not
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
+  
+        if (profileError && profileError.code === 'PGRST116') {
+          // Profile doesn't exist, create one
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, role: 'user' });
+  
+          if (createError) {
+            console.error('Error creating profile:', createError);
+          }
+        }
       }
     };
-
     fetchUserData();
   }, [supabase, router]);
 
@@ -92,33 +105,17 @@ export default function SdgDetail({
     fetchData();
   }, [user, supabase, slug]);
 
-  const getModuleStatus = (moduleId: string, index: number): 'todo' | 'doing' | 'done' | 'locked' => {
+  const getModuleStatus = (moduleId: string): 'todo' | 'doing' | 'done' => {
     const progress = userModuleProgress.find((p) => p.module_id === moduleId);
-    if (progress) {
-      return progress.progress;
-    }
-
-    if (index === 0) {
-      return "todo";
-    }
-
-    const prevModuleCompleted =
-      index > 0 &&
-      userModuleProgress.some(
-        (p) =>
-          p.module_id === modules[index - 1].module_id && p.progress === "done"
-      );
-
-    return prevModuleCompleted ? "todo" : "locked";
+    return progress ? progress.progress : 'todo';
   };
 
+
   const handleContinue = () => {
-    const nextModule = modules.find(
-      (module, index) => {
-        const status = getModuleStatus(module.module_id, index);
-        return status === "todo" || status === "doing";
-      }
-    );
+    const nextModule = modules.find((module) => {
+      const status = getModuleStatus(module.module_id);
+      return status === "todo" || status === "doing";
+    });
     if (nextModule) {
       router.push(`/play/${nextModule.module_id}`);
     } else if (modules.length > 0) {
@@ -168,7 +165,7 @@ export default function SdgDetail({
             </button>
             <button
               className="p-1 bg-gray-100 rounded-md"
-              onClick={() => router.push("/home")}
+              onClick={() => router.push("/")}
             >
               <svg
                 className="w-5 h-5 text-[#586380]"
@@ -252,24 +249,19 @@ export default function SdgDetail({
             </h2>
             <ul className="space-y-4">
               {modules.map((module, index) => {
-                const status = getModuleStatus(module.module_id, index);
+                const status = getModuleStatus(module.module_id);
 
                 return (
                   <li
                     key={module.module_id}
-                    className={`flex items-center p-2 rounded-lg transition duration-300 ${
-                      status !== "locked"
-                        ? "cursor-pointer hover:bg-gray-50"
-                        : "opacity-50"
+                    className={`flex items-center p-2 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-50 ${
+                      status === 'done' ? 'bg-blue-100' : ''
                     }`}
-                    onClick={() =>
-                      status !== "locked" &&
-                      router.push(`/play/${module.module_id}`)
-                    }
+                    onClick={() => router.push(`/play/${module.module_id}`)}
                   >
                     <div
                       className={`w-12 h-12 rounded-lg mr-4 flex-shrink-0 flex items-center justify-center ${
-                        status === "done" ? "bg-green-500" : "bg-orange-200"
+                        status === "done" ? "bg-blue-500" : "bg-orange-200"
                       }`}
                     >
                       {status === "done" ? (
@@ -284,13 +276,7 @@ export default function SdgDetail({
                       <h3 className="font-semibold">{module.title}</h3>
                       <p className="text-sm text-gray-500">{module.subtitle}</p>
                     </div>
-                    {status === "locked" ? (
-                      <Lock className="text-gray-400 w-6 h-6" />
-                    ) : (
-                      status !== "done" && (
-                        <ChevronRight className="text-gray-400 w-6 h-6" />
-                      )
-                    )}
+                    <ChevronRight className="text-gray-400 w-6 h-6" />
                   </li>
                 );
               })}

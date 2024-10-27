@@ -1,56 +1,140 @@
 import React, { useState, useEffect } from "react";
-import { FlashcardGameSection } from "@/types/sections";
+import { FlashcardGameSection, Section } from "@/types/sections";
+import { Button } from "@/components/ui/Button";
+import { Input, Textarea } from "@/components/ui/Input";
+import { Plus, X } from "lucide-react";
 
-const TickIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6 text-green-500"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M5 13l4 4L19 7"
-    />
-  </svg>
-);
+interface FlashCard {
+  id: number;
+  concept: string;
+  details: string;
+  isFlipped: boolean;
+}
 
-const FlashcardGameComponent: React.FC<{ section: FlashcardGameSection }> = ({
+interface EditableFlashcardGameComponentProps {
+  section: FlashcardGameSection;
+  onUpdate: (updatedSection: Section) => void;
+}
+
+const EditableFlashcardGameComponent: React.FC<EditableFlashcardGameComponentProps> = ({
   section,
+  onUpdate,
 }) => {
-  const {
-    title,
-    data: { cardPairs },
-    onComplete,
-  } = section;
-  const [cards, setCards] = useState(
-    cardPairs.map((card, index) => ({
+  const [isEditing, setIsEditing] = useState(false);
+  const [localSection, setLocalSection] = useState(section);
+  const [cards, setCards] = useState<FlashCard[]>(
+    section.data.cardPairs.map((card, index) => ({
       ...card,
-      id: index,
+      id: card.id || index,
       isFlipped: false,
     }))
   );
-  const [allFlipped, setAllFlipped] = useState(false);
 
   useEffect(() => {
-    setAllFlipped(cards.every((card) => card.isFlipped));
-  }, [cards]);
+    setLocalSection(section);
+    setCards(section.data.cardPairs.map((card, index) => ({
+      ...card,
+      id: card.id || index,
+      isFlipped: false,
+    })));
+  }, [section]);
 
   const handleCardClick = (id: number) => {
-    setCards((prevCards) =>
-      prevCards.map((card) =>
-        card.id === id ? { ...card, isFlipped: !card.isFlipped } : card
-      )
-    );
+    if (!isEditing) {
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === id ? { ...card, isFlipped: !card.isFlipped } : card
+        )
+      );
+    }
   };
 
-  return (
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSection({ ...localSection, title: e.target.value });
+  };
+
+  const handleCardChange = (id: number, field: 'concept' | 'details', value: string) => {
+    setCards(cards.map(card => 
+      card.id === id ? { ...card, [field]: value } : card
+    ));
+  };
+
+  const handleAddCard = () => {
+    const newCard: FlashCard = { id: cards.length, concept: '', details: '', isFlipped: false };
+    setCards([...cards, newCard]);
+  };
+
+  const handleRemoveCard = (id: number) => {
+    setCards(cards.filter(card => card.id !== id));
+  };
+
+  const handleSave = () => {
+    const updatedSection: FlashcardGameSection = {
+      ...localSection,
+      data: { 
+        ...localSection.data, 
+        cardPairs: cards.map(({ id, concept, details }) => ({ id, concept, details }))
+      },
+    };
+    onUpdate(updatedSection);
+    setIsEditing(false);
+  };
+
+  const renderEditMode = () => (
+    <div className="bg-white p-6 rounded-lg shadow-lg">
+
+      <Input
+        type="text"
+        value={localSection.title}
+        onChange={handleTitleChange}
+        className="w-full text-2xl font-bold mb-4 p-2 border rounded"
+        placeholder="Flashcard Set Title"
+      />
+      {cards.map((card) => (
+        <div key={card.id} className="mb-4 p-4 border rounded">
+          <Input
+            type="text"
+            value={card.concept}
+            onChange={(e) => handleCardChange(card.id, 'concept', e.target.value)}
+            className="w-full mb-2 p-2 border rounded"
+            placeholder="Concept"
+          />
+          <Textarea
+            value={card.details}
+            onChange={(e) => handleCardChange(card.id, 'details', e.target.value)}
+            className="w-full p-2 border rounded"
+            placeholder="Details"
+          />
+          <Button 
+            onClick={() => handleRemoveCard(card.id)}
+            variant="secondary"
+            className="mt-2"
+          >
+            <X size={16} className="mr-2" /> Remove Card
+          </Button>
+        </div>
+      ))}
+      <Button 
+        onClick={handleAddCard}
+        variant="secondary"  // Changed from "outline" to "secondary"
+        className="mb-4"
+      >
+        <Plus size={16} className="mr-2" /> Add Card
+      </Button>
+      <Button 
+        onClick={handleSave}
+        variant="primary"  // Added variant="primary"
+        className="w-full"
+      >
+        Save Changes
+      </Button>
+    </div>
+  );
+
+  const renderViewMode = () => (
     <section className="flashcard-game bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
       <h2 className="text-4xl font-bold mb-10 text-center text-blue-800">
-        {title}
+        {localSection.title}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-10">
         {cards.map((card) => (
@@ -84,29 +168,20 @@ const FlashcardGameComponent: React.FC<{ section: FlashcardGameSection }> = ({
               <p className="text-base leading-relaxed flex-grow flex items-center">
                 {card.details}
               </p>
-              <div className="absolute top-2 right-2">
-                <TickIcon />
-              </div>
             </div>
           </div>
         ))}
       </div>
-      <div className="text-center mt-8">
-        {allFlipped ? (
-          <button
-            onClick={onComplete}
-            className="w-full py-4 rounded-lg text-xl font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Continue
-          </button>
-        ) : (
-          <p className="text-lg font-medium text-blue-700">
-            Flip all cards to continue
-          </p>
-        )}
-      </div>
+      <Button
+        onClick={() => setIsEditing(true)}
+        className="mt-4"
+      >
+        Edit Flashcards
+      </Button>
     </section>
   );
+
+  return isEditing ? renderEditMode() : renderViewMode();
 };
 
-export default FlashcardGameComponent;
+export default EditableFlashcardGameComponent;

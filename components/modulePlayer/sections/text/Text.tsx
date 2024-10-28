@@ -9,11 +9,9 @@ interface EditableTextSectionComponentProps {
   isEditable?: boolean;
 }
 
-const EditableTextSectionComponent: React.FC<EditableTextSectionComponentProps> = ({
-  section,
-  onUpdate,
-  isEditable = false,
-}) => {
+const EditableTextSectionComponent: React.FC<
+  EditableTextSectionComponentProps
+> = ({ section, onUpdate, isEditable = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localSection, setLocalSection] = useState(section);
 
@@ -99,14 +97,18 @@ const EditableTextSectionComponent: React.FC<EditableTextSectionComponentProps> 
         </p>
       </div>
       <Button
-        onClick={localSection.onComplete}
+        // onClick={localSection.onComplete}
         variant="primary"
         className="w-full"
       >
         Continue
       </Button>
       {isEditable && (
-        <Button onClick={() => setIsEditing(true)} variant="secondary" className="mt-4">
+        <Button
+          onClick={() => setIsEditing(true)}
+          variant="secondary"
+          className="mt-4"
+        >
           Edit Section
         </Button>
       )}

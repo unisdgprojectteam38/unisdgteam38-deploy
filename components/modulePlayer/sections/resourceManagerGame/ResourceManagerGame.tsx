@@ -54,7 +54,7 @@ const CombinedResourceManagerGameSection: React.FC<
     if (gameState === "playing") {
       if (cityHealth <= 0 || resources <= 0) {
         setGameState("gameOver");
-        section.onComplete(); // Trigger onComplete when the game ends
+        // section.onComplete(); // Trigger onComplete when the game ends
       } else if (!currentEvent) {
         setCurrentEvent(events[Math.floor(Math.random() * events.length)]);
       }

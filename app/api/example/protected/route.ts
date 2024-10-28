@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   // Parse the request body
-  const { title, descriptio, sdg_display_id } = await request.json();
+  const { title, description, sdg_display_id } = await request.json();
   const supabase = createClient();
 
   // Check authentication

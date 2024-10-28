@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": ""
+    "test": "",
+    "type-check": "tsc"
   },
   "dependencies": {
     "@dotlottie/dotlottie-js": "^0.8.1",

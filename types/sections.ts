@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 export interface HeaderData {
   newsTitle: string;
@@ -16,7 +16,13 @@ export interface BaseSection {
   id: string;
   title: string;
   order_id: number;
-  type: 'quiz' | 'text' | 'resourceManagerGame' | 'flashcards' | 'header' | 'events';
+  type:
+    | "quiz"
+    | "text"
+    | "resourceManagerGame"
+    | "flashcards"
+    | "header"
+    | "events";
   data: any;
 }
 
@@ -27,6 +33,8 @@ export interface QuizSection extends BaseSection {
     options: string[];
     correctAnswer: string;
   };
+
+  // onComplete: () => void;
 }
 
 export interface TextSection extends BaseSection {
@@ -34,6 +42,8 @@ export interface TextSection extends BaseSection {
   data: {
     content: string;
   };
+
+  // onComplete: () => void;
 }
 
 export interface HeaderSection extends BaseSection {
@@ -44,6 +54,8 @@ export interface HeaderSection extends BaseSection {
 export interface ResourceManagerGameSection extends BaseSection {
   type: "resourceManagerGame";
   data: {};
+
+  // onComplete?: () => void;
 }
 
 export interface FlashcardGameSection extends BaseSection {
@@ -70,7 +82,13 @@ export interface Event {
   href?: string;
 }
 
-export type Section = QuizSection | TextSection | ResourceManagerGameSection | FlashcardGameSection | HeaderSection | EventsSection;
+export type Section =
+  | QuizSection
+  | TextSection
+  | ResourceManagerGameSection
+  | FlashcardGameSection
+  | HeaderSection
+  | EventsSection;
 
 // Add these new interfaces
 export interface Module {

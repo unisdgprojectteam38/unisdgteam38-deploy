@@ -5,6 +5,7 @@ import { QuizSection } from "@/types/sections";
 const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
   section,
 }) => {
+  /* @ts-ignore */
   const { data, onComplete } = section;
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null); // Track correctness

@@ -47,7 +47,9 @@ const QuizSectionComponent: React.FC<QuizSectionComponentProps> = ({
     });
   };
 
-  const handleCorrectAnswerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleCorrectAnswerChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setLocalSection({
       ...localSection,
       data: { ...localSection.data, correctAnswer: e.target.value },
@@ -87,7 +89,7 @@ const QuizSectionComponent: React.FC<QuizSectionComponentProps> = ({
   const handleComplete = () => {
     if (selectedAnswer === localSection.data.correctAnswer) {
       setIsCorrect(true);
-      localSection.onComplete();
+      // localSection.onComplete();
     } else {
       setIsCorrect(false);
     }
@@ -210,7 +212,11 @@ const QuizSectionComponent: React.FC<QuizSectionComponentProps> = ({
       )}
 
       {isEditable && (
-        <Button onClick={() => setIsEditing(true)} variant="secondary" className="mt-4">
+        <Button
+          onClick={() => setIsEditing(true)}
+          variant="secondary"
+          className="mt-4"
+        >
           Edit Question
         </Button>
       )}

@@ -88,7 +88,11 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json(
-        { message: "SDG created successfully" },
+        { message: "SDG created successfully",
+          data:{
+            sdg_id: sdg.sdg_id,
+          }
+         },
         { status: 201 }
       );
     } catch (error) {

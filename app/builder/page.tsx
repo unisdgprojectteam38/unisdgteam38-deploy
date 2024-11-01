@@ -316,6 +316,15 @@ const AdminBuilder: React.FC = () => {
         },
         body: JSON.stringify(sdgData),
       });
+      const result = await response.json();
+      if (response.ok) {
+        // Open new window with the SDG view
+        window.open(`/sdg/${result.data.sdg_id}`, '_blank');
+        // Redirect current page to home
+        window.location.href = '/';
+      } else {
+        throw new Error(result.error || 'Failed to save SDG');
+      }
 
       // ... rest of your error handling and logging ...
     } catch (error) {

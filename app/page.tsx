@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Bell, User, Menu, Check, PlayCircle, Lock } from "lucide-react";
+import { User, Menu, Check, PlayCircle, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NewsCard from "@/components/NewsCard";
 import NewsCarousel from "@/components/NewsCarousel";
 import SDGGrid from "@/components/SDGGrid";
 import { createClient } from "@/utils/supabase/client";
+import SideBar from "@/components/SideBar";
 
 interface Article {
   title: string;
@@ -141,46 +142,18 @@ export default function Index() {
       </button>
       
       {/* Sidebar */}
-      <aside
+      {/* <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-surface shadow-md overflow-y-auto md:block`}
       >
-        <div className="p-4">
-          <div className="flex items-center space-x-2 mb-6">
-            <User className="h-6 w-6" />
-            <span className="font-semibold">Profile</span>
-          </div>
-          <nav>
-            {[
-              "Dashboard",
-              "SDG",
-              "Achievements",
-              "Ask for Help",
-              "Resources",
-              "Videos",
-              "Profile settings",
-            ].map((item, index) => (
-              <a
-                key={index}
-                href="#"
-                className={`block py-2 px-4 rounded ${
-                  index === 0
-                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
-                    : "text-subtle hover:bg-surface"
-                }`}
-              >
-                {item}
-              </a>
-            ))}
-          </nav>
-        </div>
-      </aside>
+        <SideBar />
+      </aside> */}
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto p-8 md:ml-0">
         {/* Hero Section */}
-        <div className="mb-6">
+        <div id="Dashboard" className="mb-6">
           <h1>Sustainable Development Goals</h1>
           <div className="bg-blue-800 p-4 rounded-lg flex flex-row gap-8">
             <div className="w-[600px]">
@@ -215,7 +188,7 @@ export default function Index() {
         </div>
 
         {/* SDG Modules */}
-        <div className="py-8">
+        <div id="SDG" className="py-8">
           <h2>Goals</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sdgs.map((sdg) => {
@@ -256,23 +229,21 @@ export default function Index() {
         </div>
 
         {/* Daily News */}
-        <div className="bg-sdg-6 p-4 mb-6 rounded-lg">
-          <h4 className="flex items-center text-inverse">
-            <Bell className="h-5 w-5 mr-2" />
-            Daily News
-          </h4>
-          <p className="text-inverse">
+        <div className="mb-4 pb-4">
+          <h2>Daily News</h2>
+          <p>
             Keep up to date with the latest news on Sustainable Development
             Goals. Check out the latest articles, events, and updates related to
             the SDGs!
           </p>
         </div>
 
+
         {/* News Carousel Section */}
         {articles.length > 0 ? (
           <NewsCarousel articles={articles} />
         ) : (
-          <div className="flex flex-row justify-center items-start h-[360px] px-6 py-4 gap-8">
+          <div className="flex flex-row justify-center items-start h-[360px] px-6 py-4 gap-8 mb-4">
             <NewsCard 
               img="/EVAC-header-desktop.jpg"
               title="End Child Violence"

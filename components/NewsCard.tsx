@@ -32,9 +32,6 @@ export default function NewsCard({ img, title, description, href }: NewsCardProp
             <button className='btn-outline btn-sm'>Learn more</button>
             </a>
         </div>
-
-
-
     </div>
   );
 }

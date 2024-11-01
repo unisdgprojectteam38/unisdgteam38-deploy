@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import Link from 'next/link';
+import UNiSDGLogo from "@/public/UNiSDG_logo.svg";
 import SDG06Icon from '@/public/SDG-Grid-Logos/SDG-06.svg';
 
 export default function Footer() {
@@ -21,21 +23,56 @@ export default function Footer() {
       "16 PEACE, JUSTICE AND STRONG INSTITUTIONS",
       "17 PARTNERSHIPS FOR THE GOALS"
     ];
- 
+    const sdgColumns = [sdgGoals.slice(0, 6), sdgGoals.slice(6, 12), sdgGoals.slice(12)];
     return (
-      <footer className="bg-white p-8">
-        <div className="flex items-center mb-6">
-          <Image src={SDG06Icon} alt="SDG Icon" width={48} height={48} className="mr-4" />
-          <div>
-            <h2 className="font-bold">SDG - Clean Water & Sanitation</h2>
+      <footer className="bg-surface p-8 flex flex-col mb-4 h-full">
+        <div className="h-60 justify-between items-start inline-flex">
+          <div className="w-[140px] flex-col justify-start items-center gap-[26px] inline-flex">
+            <div className="flex-col justify-start items-start gap-3 flex">
+              <div className="flex-col justify-start items-start gap-2.5 flex">
+              <Link href="/" className="flex items-center">
+                <Image
+                  src={UNiSDGLogo}
+                  alt="UNiSDG Logo"
+                  width={40}
+                  height={40}
+                  className="mr-2"
+                />
+            </Link>
+              </div>
+            <h6 className="self-stretch text-center">UNi SDG</h6>
+        </div>
+      </div>
+        <div className="justify-start items-start gap-2 flex h-full">
+          <div className="flex-col justify-start items-start gap-2 inline-flex">
+            <h6 className="w-[200px] h-6">Contact Us</h6>
+            <div className="h-6 flex-col justify-start items-start gap-2 flex">
+                <p className="self-stretch caption text-default">@email address</p>
+            </div>
+            <h6 className="w-[200px] h-6">Legal</h6>
+              <div className="w-[200px] flex-col justify-start items-start gap-2 inline-flex">
+                <p className="self-stretch caption text-default">Terms & Conditions</p>
+                <p className="self-stretch caption text-default">Privacy Policy</p>
+              </div>
+          </div>
+      </div>
+      <div className="justify-start items-start gap-4 flex h-full">
+        <div className="flex-col justify-start items-start gap-2 inline-flex">
+          <h6 className="w-[200px] h-6">SDG</h6>
+          <div className="self-stretch h-[0px] border border-default-500"></div> {/* Horizontal line divider */}
+          <div className="w-[632px] justify-start items-start gap-4 inline-flex mb-2"> 
+            {sdgColumns.map((column, index) => (
+              <div key={index} className="w-[200px] flex-col justify-start items-start gap-2 inline-flex">
+              {column.map((goal, goalIndex) => (
+                <p key={goalIndex} className="self-stretch caption text-default">{goal}</p>
+                  ))}
+              </div>
+              ))}
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4 text-sm">
-          {sdgGoals.map((goal, index) => (
-            <div key={index}>{goal}</div>
-          ))}
-        </div>
-        <p className="mt-6 text-center text-sm text-gray-500">©Copyrights All Rights Reserved</p>
-      </footer>
+      </div>
+    </div>
+    <p className="caption"> ©Copyrights All Rights Reserved</p>
+  </footer>
     );
   }

@@ -26,10 +26,10 @@ export default function Header() {
         </Link>
         <div className="flex flex-row gap-4 items-center">
           {/* Double check links */}
-          <Link href="/#Dashboard" className={`btn-ghost ${pathname === '/Dashboard' ? 'active' : ''}`}>
+          <Link href="/#Dashboard" className={`btn-ghost ${pathname === '/#Dashboard' ? 'active' : ''}`}>
               Dashboard
           </Link>
-          <Link href="/#SDG" className={`btn-ghost ${pathname === '/SDG' ? 'active' : ''}`}>
+          <Link href="/#SDG" className={`btn-ghost ${pathname === '/#SDG' ? 'active' : ''}`}>
               SDG
           </Link>
           <Link href="/search" className={`btn-ghost ${pathname === '/search' ? 'active' : ''}`}>

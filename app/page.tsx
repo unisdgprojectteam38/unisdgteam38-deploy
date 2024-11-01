@@ -6,7 +6,7 @@ import NewsCard from "@/components/NewsCard";
 import NewsCarousel from "@/components/NewsCarousel";
 import SDGGrid from "@/components/SDGGrid";
 import { createClient } from "@/utils/supabase/client";
-import SideBar from "@/components/SideBar";
+import Footer from "@/components/Footer";
 
 interface Article {
   title: string;
@@ -134,22 +134,13 @@ export default function Index() {
   return (
     <div className="flex flex-col h-screen bg-default md:flex-row">
       {/* Mobile menu button */}
+      {/* Do we still need this if we don't have sidebar anymore */}
       <button
         className="md:hidden fixed top-4 left-4 z-20 p-2 bg-surface rounded-md shadow-md"
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
         <Menu className="h-6 w-6" />
       </button>
-      
-      {/* Sidebar */}
-      {/* <aside
-        className={`${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transition-transform duration-300 fixed md:static inset-y-0 left-0 z-10 w-64 bg-surface shadow-md overflow-y-auto md:block`}
-      >
-        <SideBar />
-      </aside> */}
-
       {/* Main content */}
       <main className="flex-1 overflow-y-auto p-8 md:ml-0">
         {/* Hero Section */}
@@ -264,6 +255,7 @@ export default function Index() {
             />
           </div>
         )}
+        <Footer />
       </main>
     </div>
   );

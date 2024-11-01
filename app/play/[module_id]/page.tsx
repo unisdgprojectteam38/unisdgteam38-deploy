@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import ModulePlayer from "@/components/modulePlayer/ModulePlayer";
 import { Section, HeaderData } from "@/types/sections";
+import Footer from "@/components/Footer";
 
 interface PlayModuleProps {
   params: {
@@ -242,6 +243,7 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           </button>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

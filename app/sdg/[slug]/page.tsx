@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { CheckCircle, ChevronRight } from "lucide-react";
+import Footer from "@/components/Footer";
 
 // Define types
 interface User {
@@ -314,6 +315,7 @@ export default function SdgDetail({ params: { slug } }: { params: { slug: string
           }
         }
       `}</style>
+      <Footer />
     </div>
   );
 }

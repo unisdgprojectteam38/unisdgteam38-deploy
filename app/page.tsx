@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Bell, User, Menu, Check, PlayCircle, Lock } from "lucide-react";
+import { Bell, User, Menu, Check, PlayCircle, Lock, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NewsCard from "@/components/NewsCard";
 import NewsCarousel from "@/components/NewsCarousel";
 import SDGGrid from "@/components/SDGGrid";
 import { createClient } from "@/utils/supabase/client";
+import { getUserRole } from "@/utils/getUserRole";
+import Link from "next/link";
 
 interface Article {
   title: string;
@@ -29,6 +31,8 @@ interface UserSdgProgress {
 export default function Index() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const isAdmin = userRole === "admin";
   const [sdgs, setSdgs] = useState<SDG[]>([]);
   const [userSdgProgress, setUserSdgProgress] = useState<UserSdgProgress[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -68,6 +72,7 @@ export default function Index() {
         setUser(user);
         fetchSdgs();
         fetchUserSdgProgress(user.id);
+        getUserRole(supabase).then(role => setUserRole(role));
       } else {
         router.push("/login");
       }
@@ -179,6 +184,7 @@ export default function Index() {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto p-8 md:ml-0">
+     
         {/* Hero Section */}
         <div className="mb-6">
           <h1>Sustainable Development Goals</h1>
@@ -209,7 +215,7 @@ export default function Index() {
         </div>
 
         {/* Module Progress */}
-        <div className="mb-8 overflow-x-auto">
+        {/* <div className="mb-8 overflow-x-auto">
           <div className="flex justify-between items-center mb-2 min-w-max">
             <div className="text-subtler">Newbie</div>
             <div className="text-default">Master</div>
@@ -217,12 +223,24 @@ export default function Index() {
           <div className="h-2 bg-surface rounded-full">
             <div className="h-full w-1/2 bg-sdg-6 rounded-full"></div>
           </div>
-        </div>
+        </div> */}
 
         {/* SDG Modules */}
         <div className="py-8">
           <h2>Goals</h2>
+          {isAdmin && (
+          <div className="mb-6">
+            <Link
+              href="/builder"
+              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Add New SDG
+            </Link>
+          </div>
+        )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            
             {sdgs.map((sdg) => {
               const progress = getSdgProgress(sdg.sdg_id);
               return (

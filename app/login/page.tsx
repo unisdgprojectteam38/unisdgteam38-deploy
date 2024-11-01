@@ -23,25 +23,37 @@ export default function LoginPage({
       email,
       password,
     });
+
     if (!error && user) {
-      // Check if user has a profile
+      // Check if user has a profile and get their role
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select()
+        .select("role")
         .eq("id", user.id)
         .single();
-      // Create a new profile if it doesn't exist
+
       if (!profile && !profileError) {
+        // Create a new profile if it doesn't exist
         const { error: insertError } = await supabase
           .from("profiles")
           .insert({ id: user.id, role: "user" });
+        
         if (insertError) {
           console.error("Error creating profile:", insertError);
         } else {
-          console.log("Profile created successfully");
+          // Update user metadata with the default role
+          await supabase.auth.updateUser({
+            data: { userRole: "user" }
+          });
         }
+      } else if (profile) {
+        // Update user metadata with the profile role
+        await supabase.auth.updateUser({
+          data: { userRole: profile.role }
+        });
       }
     }
+
     if (error) {
       return redirect("/login?message=Could not authenticate user");
     }
@@ -77,6 +89,11 @@ export default function LoginPage({
  
       if (profileError) {
         console.error('Error creating profile:', profileError);
+      } else {
+        // Update user metadata with the default role
+        await supabase.auth.updateUser({
+          data: { userRole: "user" }
+        });
       }
     }
  

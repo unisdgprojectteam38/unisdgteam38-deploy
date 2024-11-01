@@ -32,7 +32,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Plus, GripVertical, X } from 'lucide-react';
 import { Section, HeaderData, Module, SDG } from '@/types/sections';
-
+import { getUserRole } from '@/utils/getUserRole';
+import { redirect } from 'next/navigation';
 
 interface SortableItemProps {
   id: string;
@@ -40,6 +41,19 @@ interface SortableItemProps {
 }
 
 const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
+  const supabase = createClient();
+  
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const userRole = await getUserRole(supabase);
+      if (userRole !== "admin") {
+        redirect("/");
+      }
+    };
+    
+    checkUserRole();
+  }, []);
+
   const {
     attributes,
     listeners,
@@ -121,6 +135,13 @@ const sectionTypes: Omit<Section, 'id'>[] = [
     }
   },
 ];
+
+// Add this component at the top level
+const RaindropSVG = () => (
+  <svg className="Hero6-symbol" viewBox="0 0 512 512" fill="white">
+    <path d="M414.21,226.014L256,0L97.791,226.014c-65.493,93.56-29.274,224.629,75.837,269.286C198.933,506.053,226.772,512,256,512s57.067-5.947,82.373-16.699C443.484,450.643,479.701,319.574,414.21,226.014z" />
+  </svg>
+);
 
 const AdminBuilder: React.FC = () => {
   const [sdg, setSDG] = useState<SDG>({
@@ -339,103 +360,242 @@ const AdminBuilder: React.FC = () => {
   //   });
   // };
 
-  
-  return (
-    <div className="container mx-auto p-4 bg-[#F6F7FB]">
-      <h1 className="text-3xl font-bold mb-6">SDG Builder</h1>
-      <Input
-        type="text"
-        name="title"
-        value={sdg.title}
-        onChange={handleSDGChange}
-        placeholder="Enter SDG title"
-        className="w-full p-2 mb-4 border rounded"
-      />
-      <textarea
-        name="description"
-        value={sdg.description}
-        onChange={handleSDGChange}
-        placeholder="Enter SDG description"
-        className="w-full p-2 mb-4 border rounded"
-      />
-      <Input
-        type="number"
-        name="sdg_display_id"
-        value={sdg.sdg_display_id}
-        onChange={handleSDGChange}
-        placeholder="Enter SDG display ID"
-        className="w-full p-2 mb-4 border rounded"
-      />
+  const [isModuleEditorOpen, setIsModuleEditorOpen] = useState(false);
 
-      <h2 className="text-2xl font-bold mb-4">Modules</h2>
-      {sdg.modules.map((module, index) => (
-        <div key={module.id} className="mb-4 p-4 border rounded">
-          <Input
-            type="text"
-            name="title"
-            value={module.title}
-            onChange={(e) => handleModuleChange(e, index)}
-            placeholder="Enter module title"
-            className="w-full p-2 mb-2 border rounded"
-          />
-          <Input
-            type="text"
-            name="subtitle"
-            value={module.subtitle}
-            onChange={(e) => handleModuleChange(e, index)}
-            placeholder="Enter module subtitle"
-            className="w-full p-2 mb-2 border rounded"
-          />
-          <Button onClick={() => setCurrentModuleIndex(index)} variant="secondary">
-            Edit Sections
+  const handleEditModule = (index: number) => {
+    setCurrentModuleIndex(index);
+    setIsModuleEditorOpen(true);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col font-sans text-[16px] leading-[26px]"
+      style={{
+        fontFamily: 'hurme_no2-webfont, -apple-system, "system-ui", sans-serif',
+        backgroundColor: "#F6F7FB",
+      }}>
+      {/* Header */}
+      <header className="sticky top-0 z-[901] h-16 bg-white">
+        <div className="h-full px-6 flex items-center justify-between" style={{ color: "rgb(40, 46, 62)" }}>
+          <div className="flex items-center">
+            <span className="text-lg font-semibold">SDG Builder</span>
+            <svg className="w-4 h-4 ml-1 text-[#939bb4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <button className="p-1 bg-gray-100 rounded-md" onClick={() => router.push("/")}>
+            <X className="w-5 h-5 text-[#586380]" />
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-grow bg-[#F6F7FB] p-4">
+        <div className="w-full max-w-2xl mx-auto">
+          {/* Featured Card with Raindrops */}
+          <div className="bg-[rgb(44,186,223)] rounded-3xl p-8 mb-8 relative overflow-hidden">
+            {/* Raindrops */}
+            <div className="Hero6-drop-1" style={{ left: "10%", animationDelay: "0s" }}><RaindropSVG /></div>
+            <div className="Hero6-drop-1" style={{ left: "30%", animationDelay: "0.5s" }}><RaindropSVG /></div>
+            <div className="Hero6-drop-3" style={{ left: "50%", animationDelay: "1s" }}><RaindropSVG /></div>
+            <div className="Hero6-drop-2" style={{ left: "70%", animationDelay: "1.5s" }}><RaindropSVG /></div>
+            <div className="Hero6-drop-3" style={{ left: "90%", animationDelay: "2s" }}><RaindropSVG /></div>
+
+            <div className="relative z-10">
+              <h2 className="text-center text-sm mb-2 text-white">SDG Details</h2>
+              <Input
+                type="text"
+                name="title"
+                value={sdg.title}
+                onChange={handleSDGChange}
+                placeholder="Enter SDG title"
+                className="w-full p-2 mb-4 bg-white/90 backdrop-blur"
+              />
+              <Input
+                type="number"
+                name="sdg_display_id"
+                value={sdg.sdg_display_id}
+                onChange={handleSDGChange}
+                placeholder="Enter SDG display ID"
+                className="w-full p-2 mb-4 bg-white/90 backdrop-blur"
+              />
+              <textarea
+                name="description"
+                value={sdg.description}
+                onChange={handleSDGChange}
+                placeholder="Enter SDG description"
+                className="w-full p-2 mb-4 border rounded-lg min-h-[100px] bg-white/90 backdrop-blur"
+              />
+            </div>
+          </div>
+
+          {/* Modules List */}
+          <div className="bg-white rounded-3xl p-6 shadow-md mb-8">
+            <div className="flex justify-between items-center mb-4 border-b pb-2">
+              <h2 className="text-xl font-semibold">Modules</h2>
+              <Button onClick={handleAddModule} className="rounded-full bg-[rgb(44,186,223)] text-white hover:bg-[rgb(39,167,200)]">
+                <Plus className="mr-2" /> Add Module
+              </Button>
+            </div>
+            
+            <ul className="space-y-4">
+              {sdg.modules.map((module, index) => (
+                <li
+                  key={module.id}
+                  className="flex items-center p-4 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-50 border"
+                >
+                  <div className="w-12 h-12 rounded-lg mr-4 flex-shrink-0 flex items-center justify-center bg-orange-200">
+                    <span className="text-xl font-bold text-orange-500">{index + 1}</span>
+                  </div>
+                  <div className="flex-grow">
+                    <Input
+                      type="text"
+                      name="title"
+                      value={module.title}
+                      onChange={(e) => handleModuleChange(e, index)}
+                      placeholder="Enter module title"
+                      className="w-full p-2 mb-2"
+                    />
+                    <Input
+                      type="text"
+                      name="subtitle"
+                      value={module.subtitle}
+                      onChange={(e) => handleModuleChange(e, index)}
+                      placeholder="Enter module subtitle"
+                      className="w-full p-2"
+                    />
+                  </div>
+                  <Button 
+                    onClick={() => handleEditModule(index)} 
+                    className="ml-4 rounded-full bg-[rgb(44,186,223)] text-white hover:bg-[rgb(39,167,200)]"
+                  >
+                    Edit
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Module Editor Modal */}
+        {isModuleEditorOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center">
+            <div className="bg-white rounded-3xl w-[95%] max-w-5xl max-h-[90vh] overflow-hidden flex flex-col m-4">
+              {/* Modal Header */}
+              <div className="p-6 border-b flex justify-between items-center">
+                <h2 className="text-xl font-semibold">
+                  Editing: {sdg.modules[currentModuleIndex]?.title}
+                </h2>
+                <button 
+                  onClick={() => setIsModuleEditorOpen(false)} 
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <DndContext 
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext 
+                    items={sdg.modules[currentModuleIndex]?.sections.map(s => s.id) || []}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {sdg.modules[currentModuleIndex]?.sections.map((section) => {
+                      const SectionComponent = SECTION_COMPONENTS[section.type];
+                      return (
+                        <SortableItem key={section.id} id={section.id}>
+                          <div className="flex-grow">
+                            <SectionComponent
+                              section={section}
+                              onUpdate={handleUpdateSection}
+                              isEditable={true}
+                            />
+                          </div>
+                          <Button 
+                            onClick={() => handleRemoveSection(currentModuleIndex, section.id)}
+                            variant="secondary"
+                            className="ml-4"
+                          >
+                            <X size={24} className="text-red-500" />
+                          </Button>
+                        </SortableItem>
+                      );
+                    })}
+                  </SortableContext>
+                </DndContext>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t flex justify-between">
+                <Button 
+                  onClick={() => setIsCarouselOpen(true)} 
+                  className="rounded-full bg-[rgb(44,186,223)] text-white hover:bg-[rgb(39,167,200)]"
+                >
+                  <Plus className="mr-2" /> Add Section
+                </Button>
+                <Button 
+                  onClick={() => setIsModuleEditorOpen(false)}
+                  className="rounded-full"
+                >
+                  Done
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Save Button */}
+        <div className="fixed bottom-8 right-1/2 transform translate-x-1/2">
+          <Button onClick={handleSave} className="rounded-full px-8 py-3 bg-[rgb(44,186,223)] text-white hover:bg-[rgb(39,167,200)]">
+            Save SDG
           </Button>
         </div>
-      ))}
-      <Button onClick={handleAddModule} variant="secondary" className="mb-4">
-        <Plus className="mr-2" /> Add Module
-      </Button>
+      </main>
 
-      <h3 className="text-xl font-bold mb-4">Current Module: {sdg.modules[currentModuleIndex]?.title}</h3>
-      <DndContext 
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext 
-          items={sdg.modules[currentModuleIndex]?.sections.map(s => s.id) || []}
-          strategy={verticalListSortingStrategy}
-        >
-          {sdg.modules[currentModuleIndex]?.sections.map((section) => {
-            const SectionComponent = SECTION_COMPONENTS[section.type];
-            return (
-              <SortableItem key={section.id} id={section.id}>
-                <div className="flex-grow">
-                  <SectionComponent
-                    section={section}
-                    onUpdate={handleUpdateSection}
-                    isEditable={true}
-                  />
-                </div>
-                <Button onClick={() => handleRemoveSection(currentModuleIndex, section.id)} variant="secondary">
-                  <X size={24} className="text-red-500" />
-                </Button>
-              </SortableItem>
-            );
-          })}
-        </SortableContext>
-      </DndContext>
-      
-      <Button onClick={() => setIsCarouselOpen(true)} variant="secondary" className="mb-4">
-        <Plus className="mr-2" /> Add Section
-      </Button>
+      {/* Section Carousel */}
       {isCarouselOpen && (
-        <SectionCarousel 
-          sectionTypes={sectionTypes}
-          onSelect={handleAddSection} 
-          onClose={() => setIsCarouselOpen(false)} 
-        />
+        <div className="z-[1001]">
+          <SectionCarousel 
+            sectionTypes={sectionTypes}
+            onSelect={handleAddSection} 
+            onClose={() => setIsCarouselOpen(false)} 
+          />
+        </div>
       )}
-      <Button onClick={handleSave} variant="primary" className="mt-4">Save SDG</Button>
+
+      <style jsx>{`
+        .Hero6-drop-1,
+        .Hero6-drop-2,
+        .Hero6-drop-3 {
+          position: absolute;
+          width: 15px;
+          height: 75px;
+          opacity: 0.6;
+          animation: animation-1dftcq5 3.2s linear infinite;
+          pointer-events: none;
+          user-select: none;
+        }
+        .Hero6-drop-2 {
+          width: 25px;
+          height: 100px;
+        }
+        .Hero6-drop-3 {
+          width: 30px;
+          height: 150px;
+        }
+        @keyframes animation-1dftcq5 {
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(calc(100% + 150px));
+          }
+        }
+      `}</style>
     </div>
   );
 };

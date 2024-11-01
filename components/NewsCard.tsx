@@ -29,13 +29,7 @@ export default function NewsCard({ img, title, description, href }: NewsCardProp
       </div>
 
       <a href={href}>
-        <div className="flex flex-row w-fit items-center bg-[#CCE0FF] rounded-full px-3 py-1 hover:bg-[#85B8FF]">
-          <p className="text-black text-xs font-[Poppins] self-center text-center">Learn more</p>
-          <img
-            src="./icon_chevron-right.svg"
-            alt="right facing chevron icon"
-          />
-        </div>
+      <button className='btn-outline btn-sm'>Learn more</button>
       </a>
     </div>
   );

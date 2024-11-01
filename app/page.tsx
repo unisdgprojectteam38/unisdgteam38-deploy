@@ -182,7 +182,7 @@ export default function Index() {
         {/* Hero Section */}
         <div className="mb-6">
           <h1>Sustainable Development Goals</h1>
-          <div className="bg-sdg-6 p-4 rounded-lg flex flex-row gap-8">
+          <div className="bg-blue-800 p-4 rounded-lg flex flex-row gap-8">
             <div className="w-[600px]">
               <SDGGrid onSelectGoal={handleSelectGoal} />
             </div>
@@ -196,12 +196,12 @@ export default function Index() {
               <p className="text-inverse max-w-[500px]">{selectedGoal.description}</p>
               <div className="flex flex-row justify-end">
                 <button className="btn-primary">
-                  <span>Learn more</span>
-                  <img
+                  Learn more
+                  {/* <img
                     src="./icon_chevron-right.svg"
                     alt="right facing chevron icon"
-                    className="w-4 h-4"
-                  />
+                    className="w-5 h-5"
+                  /> */}
                 </button>
               </div>
             </div>

@@ -97,7 +97,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-[16px] leading-[26px] bg-[#F6F7FB]">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-[901] h-16 bg-white">
         <div

@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import Wave from "react-wavify";
-
-const MedicalTerminologyQuizUI = ({ progress = 50 }) => {
+const progress = 50;
+const MedicalTerminologyQuizUI = () => {
   return (
     <div className="min-h-screen flex font-sans text-[16px] leading-[26px] bg-[#F6F7FB]">
       {/* Left Menu with Raindrops */}

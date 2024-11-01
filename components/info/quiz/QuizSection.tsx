@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Player } from "@lottiefiles/react-lottie-player";
 import CelebrationAnimation from "@/public/celebrate.json";
-import IncorrectAnimation from "@/public/incorrect.json";
 import { QuizSection } from "@/types/sections";
 const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
   section,
 }) => {
+  /* @ts-ignore */
   const { data, onComplete } = section;
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null); // Track correctness
@@ -110,17 +110,6 @@ const QuizSectionComponent: React.FC<{ section: QuizSection }> = ({
         >
           {isCorrect === false ? "Try Again" : "Submit Answer"}
         </button>
-      )}
-
-      {/* Incorrect answer feedback animation */}
-      {isCorrect === false && (
-        <div className="fixed top-0 left-0 right-0 flex justify-center z-[902]">
-          <Player
-            autoplay
-            src={IncorrectAnimation}
-            style={{ height: "150px", width: "150px" }}
-          />
-        </div>
       )}
     </div>
   );

@@ -187,7 +187,7 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
         <header className="sticky top-0 z-[901] h-16 bg-white">
           {/* ... header content ... */}
         </header>
-        <main className="flex-grow bg-[#F6F7FB] flex">
+        <main className="flex-grow bg-default flex">
           <div className="flex-shrink-0 p-8">
             <WaterContainer completed={progress} total={100} />
           </div>
@@ -218,7 +218,7 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
               {!isModuleCompleted && (
                 <button
                   onClick={handleModuleComplete}
-                  className="bg-blue-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-blue-600 transition duration-300"
+                  className="btn-secondary hover:bg-blue-500 hover:text-inverse"
                 >
                   Complete Module
                 </button>

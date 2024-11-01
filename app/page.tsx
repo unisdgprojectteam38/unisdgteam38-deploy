@@ -197,11 +197,6 @@ export default function Index() {
               <div className="flex flex-row justify-end">
                 <button className="btn-primary">
                   Learn more
-                  {/* <img
-                    src="./icon_chevron-right.svg"
-                    alt="right facing chevron icon"
-                    className="w-5 h-5"
-                  /> */}
                 </button>
               </div>
             </div>

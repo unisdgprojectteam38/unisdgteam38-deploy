@@ -2,6 +2,7 @@
 
 import React, { useState, ReactNode, useEffect, ChangeEvent } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 import {
   DndContext,
   closestCenter,
@@ -33,7 +34,6 @@ import { Input } from '@/components/ui/Input';
 import { Plus, GripVertical, X } from 'lucide-react';
 import { Section, HeaderData, Module, SDG } from '@/types/sections';
 import { getUserRole } from '@/utils/getUserRole';
-import { redirect } from 'next/navigation';
 
 interface SortableItemProps {
   id: string;
@@ -41,19 +41,6 @@ interface SortableItemProps {
 }
 
 const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
-  const supabase = createClient();
-  
-  useEffect(() => {
-    const checkUserRole = async () => {
-      const userRole = await getUserRole(supabase);
-      if (userRole !== "admin") {
-        redirect("/");
-      }
-    };
-    
-    checkUserRole();
-  }, []);
-
   const {
     attributes,
     listeners,
@@ -87,8 +74,6 @@ const SECTION_COMPONENTS: Record<Section['type'], React.FC<{ section: Section; o
   header: HeaderSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
   events: EventsSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
 };
-
-
 
 const sectionTypes: Omit<Section, 'id'>[] = [
   { 
@@ -136,7 +121,6 @@ const sectionTypes: Omit<Section, 'id'>[] = [
   },
 ];
 
-// Add this component at the top level
 const RaindropSVG = () => (
   <svg className="Hero6-symbol" viewBox="0 0 512 512" fill="white">
     <path d="M414.21,226.014L256,0L97.791,226.014c-65.493,93.56-29.274,224.629,75.837,269.286C198.933,506.053,226.772,512,256,512s57.067-5.947,82.373-16.699C443.484,450.643,479.701,319.574,414.21,226.014z" />
@@ -144,6 +128,7 @@ const RaindropSVG = () => (
 );
 
 const AdminBuilder: React.FC = () => {
+  const router = useRouter();
   const [sdg, setSDG] = useState<SDG>({
     title: '',
     description: '',
@@ -153,6 +138,22 @@ const AdminBuilder: React.FC = () => {
   const [currentModuleIndex, setCurrentModuleIndex] = useState(0);
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
   const supabase = createClient();
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const userRole = await getUserRole(supabase);
+        if (userRole !== "admin") {
+          router.push("/");
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error);
+        router.push("/");
+      }
+    };
+    
+    checkUserRole();
+  }, [router]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -177,7 +178,6 @@ const AdminBuilder: React.FC = () => {
     setSDG(prev => ({ ...prev, modules: [...prev.modules, newModule] }));
     setCurrentModuleIndex(sdg.modules.length);
   };
-  
 
   const handleModuleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
     const { name, value } = e.target;
@@ -259,30 +259,6 @@ const AdminBuilder: React.FC = () => {
     }));
   };
 
-  // const handleSave = async () => {
-  //   try {
-  //     const response = await fetch('/api/admin/sdgs', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(sdg),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error('Failed to save SDG');
-  //     }
-
-  //     const result = await response.json();
-  //     console.log('SDG saved successfully:', result);
-  //     // Optionally, you can reset the form or show a success message here
-  //   } catch (error) {
-  //     console.error('Error saving SDG:', error);
-  //     // Optionally, you can show an error message to the user here
-  //   }
-  // };
-
-
   const handleSave = async () => {
     try {
       const sdgData = {
@@ -318,56 +294,15 @@ const AdminBuilder: React.FC = () => {
       });
       const result = await response.json();
       if (response.ok) {
-        // Open new window with the SDG view
         window.open(`/sdg/${result.data.sdg_id}`, '_blank');
-        // Redirect current page to home
         window.location.href = '/';
       } else {
         throw new Error(result.error || 'Failed to save SDG');
       }
-
-      // ... rest of your error handling and logging ...
     } catch (error) {
       console.error('Error saving SDG:', error);
     }
   };
-
-  // const handleSave = () => {
-  //   console.log('Data that would be sent to the database:');
-  
-  //   // Data for the 'sdgs' table
-  //   console.log('sdgs table:');
-  //   console.log({
-  //     title: sdg.title,
-  //     description: sdg.description,
-  //     sdg_display_id: sdg.sdg_display_id
-  //   });
-  
-  //   // Data for the 'module' table
-  //   console.log('\nmodule table:');
-  //   sdg.modules.forEach((module, index) => {
-  //     console.log(`Module ${index + 1}:`, {
-  //       sdg_id: '<would be generated by database>',
-  //       title: module.title,
-  //       subtitle: module.subtitle,
-  //       order_id: index
-  //     });
-  //   });
-  
-  //   // Data for the 'section' table
-  //   console.log('\nsection table:');
-  //   sdg.modules.forEach((module, moduleIndex) => {
-  //     module.sections.forEach((section, sectionIndex) => {
-  //       console.log(`Module ${moduleIndex + 1}, Section ${sectionIndex + 1}:`, {
-  //         module_id: '<would be generated by database>',
-  //         data: section.data,
-  //         order_id: section.order_id,
-  //         title: section.title,
-  //         section_type: section.type
-  //       });
-  //     });
-  //   });
-  // };
 
   const [isModuleEditorOpen, setIsModuleEditorOpen] = useState(false);
 
@@ -391,7 +326,10 @@ const AdminBuilder: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
-          <button className="p-1 bg-gray-100 rounded-md" onClick={() => router.push("/")}>
+          <button 
+            className="p-1 bg-gray-100 rounded-md" 
+            onClick={() => router.push("/")}
+          >
             <X className="w-5 h-5 text-[#586380]" />
           </button>
         </div>

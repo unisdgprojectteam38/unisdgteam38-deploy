@@ -3,7 +3,7 @@ import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import LoginFormClient from './login-form';
-import Footer from './Footer';
+import Footer from "@/components/Footer";
 import SDG6Island from "@/public/sdg6island.svg";
 
 export default async function LoginPage({

@@ -40,7 +40,7 @@ export default function AuthButton() {
     return (
       <Link
         href="/login"
-        className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
+        className="btn-secondary"
       >
         Login
       </Link>
@@ -58,7 +58,7 @@ export default function AuthButton() {
       Hey, {user.email}!
       <button
         onClick={signOut}
-        className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
+        className="btn-secondary"
       >
         Logout
       </button>

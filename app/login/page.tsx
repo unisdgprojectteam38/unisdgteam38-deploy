@@ -6,11 +6,14 @@ import LoginFormClient from './login-form';
 import Footer from './Footer';
 import SDG6Island from "@/public/sdg6island.svg";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { message: string };
+  searchParams: { message?: string };
 }) {
+  // Make sure searchParams is awaited correctly
+  const message = searchParams?.message || null;
+
   const signIn = async (formData: FormData) => {
     "use server";
     const email = formData.get("email") as string;
@@ -51,7 +54,7 @@ export default function LoginPage({
   const signUp = async (formData: FormData) => {
     "use server";
  
-    const origin = headers().get("origin");
+    const origin = (await headers()).get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const supabase = createClient();
@@ -85,7 +88,7 @@ export default function LoginPage({
 
   const signInWithGoogle = async () => {
     "use server";
-    const origin = headers().get("origin");
+    const origin = (await headers()).get("origin");
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -99,20 +102,26 @@ export default function LoginPage({
     return redirect(data.url);
   };
 
-  const signInWithGithub = async () => {
+  const handlePasswordReset = async (email: string) => {
     "use server";
-    const origin = headers().get("origin");
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: `${origin}/auth/callback`,
-      },
-    });
-    if (error) {
-      return redirect("/login?message=Could not authenticate with GitHub");
+    const origin = (await headers()).get("origin");
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${origin}/update-password`, // Redirects to the password update page
+      });
+
+      if (error) {
+        console.error("Error sending password reset email:", error.message);
+        throw new Error("Failed to send password reset email. Please try again.");
+      }
+
+      console.log("Password reset email sent successfully.");
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      throw new Error("An unexpected error occurred. Please try again.");
     }
-    return redirect(data.url);
   };
 
   return (
@@ -125,7 +134,6 @@ export default function LoginPage({
                 src={SDG6Island}
                 alt="SDG 6 Island"
                 fill
-                // style={{ objectFit: 'scale-down' }}
                 priority
                 className="w-fit px-10"
               />
@@ -135,8 +143,7 @@ export default function LoginPage({
             signIn={signIn}
             signUp={signUp}
             signInWithGoogle={signInWithGoogle}
-            signInWithGithub={signInWithGithub}
-            message={searchParams?.message}
+            message={message || undefined}
           />
         </div>
       </main>

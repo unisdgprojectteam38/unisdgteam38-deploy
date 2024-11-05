@@ -94,12 +94,6 @@ Try the [https://sdg-gamified-lms-it.vercel.app/](https://sdg-gamified-lms-it.ve
 │   └── /supabase      # Supabase client and related middleware
 ├── /types             # Type definitions
 ```
-
-Here's the updated list of key components and their functions based on the detailed project structure provided in the images:
-
----
-Here is the further refined list of key components, with the requested components removed:
-
 ---
 
 ### Key Components and Their Functions
@@ -169,13 +163,6 @@ Here is the further refined list of key components, with the requested component
 | Admin Module Management | Create, and Delete SDGs           | Passed |
 
 ---
-
-## License
-
-Here is the full MIT License text for the UNi SDG team:
-
----
-
 **MIT License**
 
 Copyright (c) [2024] UNi SDG
@@ -185,4 +172,3 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
---- 

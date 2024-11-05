@@ -2,58 +2,43 @@ import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+  // The `/auth/callback` route is required for the server-side auth flow implemented
+  // by the SSR package. It exchanges an auth code for the user's session.
+  // https://supabase.com/docs/guides/auth/server-side/nextjs
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const origin = requestUrl.origin;
 
-  if (!code) {
-    return NextResponse.redirect(`${origin}/login?message=No authorization code provided`);
-  }
-
-  const supabase = createClient();
-
-  try {
+  if (code) {
+    const supabase = createClient();
     const {
       data: { user },
-      error: authError,
+      error,
     } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (authError) {
-      console.error("Auth error:", authError);
-      return NextResponse.redirect(`${origin}/login?message=Could not authenticate user`);
-    }
-
-    if (user) {
+    console.log("User:", user);
+    if (!error && user) {
       // Check if user has a profile
-      const { data: existingProfile, error: profileCheckError } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id")
+        .select()
         .eq("id", user.id)
         .single();
 
-      if (!existingProfile) {
-        // Create a new profile if one doesn't exist
+      if (!profile && !profileError) {
+        // Create a new profile
         const { error: insertError } = await supabase
           .from("profiles")
-          .insert({ 
-            id: user.id, 
-            role: "user",
-            full_name: user.user_metadata?.full_name || null,
-            profile_picture: user.user_metadata?.avatar_url || null
-          });
+          .insert({ id: user.id, role: "user" });
 
         if (insertError) {
           console.error("Error creating profile:", insertError);
         } else {
-          console.log("Profile created successfully for:", user.id);
+          console.log("Profile created successfully");
         }
       }
     }
-
-    return NextResponse.redirect(origin);
-    
-  } catch (error) {
-    console.error("Error in auth callback:", error);
-    return NextResponse.redirect(`${origin}/login?message=Authentication failed`);
   }
+
+  // URL to redirect to after sign in process completes
+  return NextResponse.redirect(`${origin}/`);
 }

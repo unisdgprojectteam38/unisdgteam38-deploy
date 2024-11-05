@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 
 interface EditableHeaderSectionComponentProps {
-  section: HeaderSectionType;  // Update to use HeaderSection specifically
+  section: HeaderSectionType;
   onUpdate: (updatedSection: Section) => void;
   isEditable?: boolean;
 }
@@ -48,24 +48,6 @@ const EditableHeaderSectionComponent: React.FC<EditableHeaderSectionComponentPro
           className="w-full p-2 border rounded"
           placeholder="Section Title"
         />
-        
-        {/* News Section */}
-        <div className="bg-gray-50 p-4 rounded">
-          <h4 className="font-semibold mb-2">News Banner</h4>
-          <Input
-            type="text"
-            value={localSection.data.newsTitle}
-            onChange={(e) => handleDataChange('newsTitle', e.target.value)}
-            className="w-full mb-2"
-            placeholder="News Title"
-          />
-          <Textarea
-            value={localSection.data.newsContent}
-            onChange={(e) => handleDataChange('newsContent', e.target.value)}
-            className="w-full"
-            placeholder="News Content"
-          />
-        </div>
 
         {/* Main Content */}
         <div className="bg-gray-50 p-4 rounded">
@@ -106,23 +88,14 @@ const EditableHeaderSectionComponent: React.FC<EditableHeaderSectionComponentPro
 
         {/* Colors */}
         <div className="bg-gray-50 p-4 rounded">
-          <h4 className="font-semibold mb-2">Colors</h4>
-          <div className="flex gap-4">
-            <Input
-              type="text"
-              value={localSection.data.backgroundColor}
-              onChange={(e) => handleDataChange('backgroundColor', e.target.value)}
-              className="w-full mb-2"
-              placeholder="Background Color (e.g., bg-blue-500)"
-            />
-            <Input
-              type="text"
-              value={localSection.data.newsBannerColor}
-              onChange={(e) => handleDataChange('newsBannerColor', e.target.value)}
-              className="w-full mb-2"
-              placeholder="News Banner Color (e.g., bg-yellow-300)"
-            />
-          </div>
+          <h4 className="font-semibold mb-2">Background Color</h4>
+          <Input
+            type="text"
+            value={localSection.data.backgroundColor}
+            onChange={(e) => handleDataChange('backgroundColor', e.target.value)}
+            className="w-full"
+            placeholder="Background Color (e.g., bg-blue-500)"
+          />
         </div>
       </div>
       
@@ -134,24 +107,16 @@ const EditableHeaderSectionComponent: React.FC<EditableHeaderSectionComponentPro
 
   const renderViewMode = () => (
     <div className={`rounded-lg shadow-lg overflow-hidden ${localSection.data.backgroundColor}`}>
-      {/* News Banner */}
-      <div className={`${localSection.data.newsBannerColor} p-4`}>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold">{localSection.data.newsTitle}</span>
-          <p className="text-sm">{localSection.data.newsContent}</p>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="p-8 text-white">
-        <h1 className="text-4xl font-bold mb-4">{localSection.data.mainTitle}</h1>
-        <p className="text-xl">{localSection.data.mainSubtitle}</p>
+      {/* Main Content - with increased padding at top */}
+      <div className="pt-16 px-12 pb-12 text-white">
+        <h1 className="text-5xl font-bold mb-6">{localSection.data.mainTitle}</h1>
+        <p className="text-2xl">{localSection.data.mainSubtitle}</p>
       </div>
 
       {/* Definition Box */}
-      <div className="bg-white p-6 m-6 rounded-lg">
-        <h3 className="text-xl font-bold mb-2">{localSection.data.definitionTitle}</h3>
-        <p className="text-gray-700">{localSection.data.definitionPara}</p>
+      <div className="bg-white p-8 mx-8 mb-8 rounded-lg">
+        <h3 className="text-2xl font-bold mb-4">{localSection.data.definitionTitle}</h3>
+        <p className="text-gray-700 text-lg">{localSection.data.definitionPara}</p>
       </div>
 
       {isEditable && (

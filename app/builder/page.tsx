@@ -22,11 +22,12 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 import { HeaderSection } from '@/components/info/header/HeaderSection';
-import { EventsSection } from '@/components/info/events/EventsSection';
-import QuizSectionComponent from '@/components/modulePlayer/sections/quiz/Quiz';
+
 import EditableTextSectionComponent from '@/components/modulePlayer/sections/text/Text';
+import QuizSectionComponent from '@/components/modulePlayer/sections/quiz/Quiz';
 import ResourceManagerGameComponent from '@/components/modulePlayer/sections/resourceManagerGame/ResourceManagerGame';
 import FlashcardSectionComponent from '@/components/modulePlayer/sections/flashcards/Flashcards';
+import { EventsSection } from '@/components/info/events/EventsSection';
 
 import SectionCarousel from '@/components/builder/SectionCarousel';
 import { Button } from '@/components/ui/Button';
@@ -38,6 +39,12 @@ import { getUserRole } from '@/utils/getUserRole';
 interface SortableItemProps {
   id: string;
   children: ReactNode;
+}
+
+interface EditableSectionProps {
+  section: Section;
+  onUpdate?: (updatedSection: Section) => void;
+  isEditable?: boolean;
 }
 
 const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
@@ -66,13 +73,15 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
   );
 };
 
-const SECTION_COMPONENTS: Record<Section['type'], React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>> = {
-  quiz: QuizSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
-  text: EditableTextSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
-  resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
-  flashcards: FlashcardSectionComponent as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
-  header: HeaderSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
-  events: EventsSection as React.FC<{ section: Section; onUpdate: (updatedSection: Section) => void; isEditable?: boolean }>,
+import EditableHeaderSectionComponent from '@/components/modulePlayer/sections/header/Header';
+
+const SECTION_COMPONENTS: Record<Section["type"], React.FC<EditableSectionProps>> = {
+  quiz: QuizSectionComponent as React.FC<EditableSectionProps>,
+  text: EditableTextSectionComponent as React.FC<EditableSectionProps>,
+  resourceManagerGame: ResourceManagerGameComponent as React.FC<EditableSectionProps>,
+  flashcards: FlashcardSectionComponent as React.FC<EditableSectionProps>,
+  header: EditableHeaderSectionComponent as React.FC<EditableSectionProps>,
+  events: EventsSection as React.FC<EditableSectionProps>,
 };
 
 const sectionTypes: Omit<Section, 'id'>[] = [

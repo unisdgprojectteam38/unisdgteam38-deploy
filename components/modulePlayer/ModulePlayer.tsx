@@ -41,12 +41,14 @@ interface User {
   [key: string]: any;
 }
 
+import EditableHeaderSectionComponent from './sections/header/Header';
+
 const SECTION_COMPONENTS: Record<Section["type"], React.FC<{ section: Section }>> = {
   quiz: QuizSectionComponent as React.FC<{ section: Section }>,
   text: TextSectionComponent as React.FC<{ section: Section }>,
   resourceManagerGame: ResourceManagerGameComponent as React.FC<{ section: Section }>,
   flashcards: FlashcardSectionComponent as React.FC<{ section: Section }>,
-  header: HeaderSection as React.FC<{ section: Section }>,
+  header: EditableHeaderSectionComponent as React.FC<{ section: Section }>,
   events: EventsSection as React.FC<{ section: Section }>,
 };
 

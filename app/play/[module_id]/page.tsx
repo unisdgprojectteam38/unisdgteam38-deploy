@@ -220,7 +220,7 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
   }
 
   return (
-    <div className="relative">
+    <div className="min-h-screen flex flex-col">
       {showCompletionOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="p-8 bg-white rounded-lg shadow-lg text-center">
@@ -231,20 +231,25 @@ const PlayModule: React.FC<PlayModuleProps> = ({ params: { module_id } }) => {
           </div>
         </div>
       )}
-      <ModulePlayer
-        modules={{
-          module_id: module.module_id,
-          title: module.title,
-          subtitle: module.subtitle ?? "",
-          sdg_id: module.sdg_id.toString(),
-          order_id: module.order_id,
-        }}
-        sections={sections}
-        sectionsRef={sectionsRef}
-        onComplete={handleMarkAsComplete}
-        moduleTitle={module.title}
-        nextModuleId={nextModuleId}
-      />
+      
+      {/* Removed unnecessary padding and margins */}
+      <div className="flex-1">
+        <ModulePlayer
+          modules={{
+            module_id: module.module_id,
+            title: module.title,
+            subtitle: module.subtitle ?? "",
+            sdg_id: module.sdg_id.toString(),
+            order_id: module.order_id,
+          }}
+          sections={sections}
+          sectionsRef={sectionsRef}
+          onComplete={handleMarkAsComplete}
+          moduleTitle={module.title}
+          nextModuleId={nextModuleId}
+        />
+      </div>
+
       {nextModuleId && (
         <div className="fixed bottom-4 right-4">
           <button

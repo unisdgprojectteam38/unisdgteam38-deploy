@@ -168,6 +168,7 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
     }
   };
 
+
   return (
     <>
       {showAnimation && (
@@ -179,25 +180,16 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
           />
         </div>
       )}
-      <div
-        className="min-h-screen flex flex-col font-sans text-[16px] leading-[26px]"
-        style={{
-          fontFamily: 'hurme_no2-webfont, -apple-system, "system-ui", sans-serif',
-          backgroundColor: "#F6F7FB",
-        }}
-      >
-        <header className="sticky top-0 z-[901] h-16 bg-white">
-          {/* ... header content ... */}
-        </header>
-        <main className="flex-grow bg-default flex">
-          <div className="flex-shrink-0 p-8">
-            <WaterContainer completed={progress} total={100} />
-          </div>
-          <div
-            ref={containerRef}
-            className="flex-grow overflow-y-auto p-8"
-            style={{ height: "calc(100vh - 64px)" }}
-          >
+      <div className="flex bg-[#F6F7FB]">
+        {/* Added pt-16 to account for header height */}
+        <div className="flex-shrink-0 p-4 pt-16">
+          <WaterContainer completed={progress} total={100} />
+        </div>
+        <div
+          ref={containerRef}
+          className="flex-grow overflow-y-auto p-4 pt-16"
+          style={{ height: "calc(100vh - 64px)" }}
+        >
           {sections.map((section, index) => {
             const SectionComponent = SECTION_COMPONENTS[section.type];
             return (
@@ -216,26 +208,25 @@ const ModulePlayer: React.FC<ModulePlayerProps> = ({
               </motion.div>
             );
           })}
-            <div className="mt-8 flex justify-between items-center">
-              {!isModuleCompleted && (
-                <button
-                  onClick={handleModuleComplete}
-                  className="btn-secondary hover:bg-blue-500 hover:text-inverse"
-                >
-                  Complete Module
-                </button>
-              )}
-              {isModuleCompleted && (
-                <button
-                  onClick={() => nextModuleId ? router.push(`/play/${nextModuleId}`) : router.push(`/sdg/${modules.sdg_id}`)}
-                  className="bg-green-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-green-600 transition duration-300"
-                >
-                  {nextModuleId ? "Next Module" : "Back to SDG"}
-                </button>
-              )}
-            </div>
+          <div className="mt-8 flex justify-between items-center">
+            {!isModuleCompleted && (
+              <button
+                onClick={handleModuleComplete}
+                className="btn-secondary hover:bg-blue-500 hover:text-inverse"
+              >
+                Complete Module
+              </button>
+            )}
+            {isModuleCompleted && (
+              <button
+                onClick={() => nextModuleId ? router.push(`/play/${nextModuleId}`) : router.push(`/sdg/${modules.sdg_id}`)}
+                className="bg-green-500 text-white py-2 px-4 rounded-full font-semibold hover:bg-green-600 transition duration-300"
+              >
+                {nextModuleId ? "Next Module" : "Back to SDG"}
+              </button>
+            )}
           </div>
-        </main>
+        </div>
       </div>
     </>
   );

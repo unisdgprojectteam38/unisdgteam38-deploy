@@ -6,6 +6,8 @@ import ModulePlayer from "@/components/modulePlayer/ModulePlayer";
 import { Section, HeaderData } from "@/types/sections";
 import Footer from "@/components/Footer";
 
+
+
 interface PlayModuleProps {
   params: {
     module_id: string;

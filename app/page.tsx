@@ -10,6 +10,9 @@ import { getUserRole } from "@/utils/getUserRole";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 
+import { Trash2 } from 'lucide-react';
+import DeleteModal from '@/components/DeleteModal';
+
 interface Article {
   title: string;
   description: string;
@@ -30,6 +33,7 @@ interface UserSdgProgress {
 }
 
 export default function Index() {
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -39,6 +43,9 @@ export default function Index() {
   const [articles, setArticles] = useState<Article[]>([]);
   const router = useRouter();
   const supabase = createClient();
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [sdgToDelete, setSdgToDelete] = useState<{ id: number; title: string } | null>(null);
 
   const sdgGoals = [
     { number: 1, title: 'No Poverty', description: 'End poverty in all its forms everywhere.' },
@@ -65,6 +72,24 @@ export default function Index() {
     title: 'Clean Water And Sanitation',
     description: 'Ensure availability and sustainable management of water and sanitation for all.',
   });
+
+  const handleDeleteSDG = async (sdgId: number) => {
+    try {
+      const { error } = await supabase
+        .from('sdgs')
+        .delete()
+        .eq('sdg_id', sdgId);
+  
+      if (error) throw error;
+      
+      // Refresh the SDGs list
+      fetchSdgs();
+      setIsDeleteModalOpen(false);
+      setSdgToDelete(null);
+    } catch (error) {
+      console.error('Error deleting SDG:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -165,9 +190,9 @@ export default function Index() {
               <h3 className="text-inverse">{selectedGoal.title}</h3>
               <p className="text-inverse max-w-[500px]">{selectedGoal.description}</p>
               <div className="flex flex-row justify-end">
-                <button className="btn-primary">
+                {/* <button className="btn-primary">
                   Learn more
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
@@ -200,40 +225,54 @@ export default function Index() {
         )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             
-            {sdgs.map((sdg) => {
-              const progress = getSdgProgress(sdg.sdg_id);
-              return (
-                <div
-                  key={sdg.sdg_id}
-                  className={`relative bg-surface rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
-                    progress === 'doing' ? "opacity-75" : ""
-                  }`}
-                  onClick={() => !progress.includes('doing') && router.push(`/sdg/${sdg.sdg_id}`)}
-                >
-                  <div className="p-4 flex items-start">
-                    <div 
-                      className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 text-inverse`}
-                      style={{ backgroundColor: `var(--sdg-${sdg.sdg_id})` }}
-                    >
-                      {sdg.sdg_display_id}
-                    </div>
-                    <div className="flex-grow">
-                      <h6>{sdg.title}</h6>
-                      <p className="caption">{sdg.description}</p>
-                    </div>
-                    <div className="ml-2 flex-shrink-0">
-                      {progress === 'done' && <Check className="h-5 w-5 text-green-500" />}
-                      {progress === 'doing' && <PlayCircle className="h-5 w-5 text-blue-500" />}
-                    </div>
+          {sdgs.map((sdg) => {
+            const progress = getSdgProgress(sdg.sdg_id);
+            return (
+              <div
+                key={sdg.sdg_id}
+                className={`relative bg-surface rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
+                  progress === 'doing' ? "opacity-75" : ""
+                }`}
+              >
+                <div className="p-4 flex items-start">
+                  <div 
+                    className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 text-inverse`}
+                    style={{ backgroundColor: `var(--sdg-${sdg.sdg_id})` }}
+                  >
+                    {sdg.sdg_display_id}
                   </div>
-                  {progress === 'doing' && (
-                    <div className="absolute inset-0 bg-neutral-900/80 flex items-center justify-center">
-                      <Lock className="h-8 w-8 text-inverse" />
-                    </div>
-                  )}
+                  <div 
+                    className="flex-grow"
+                    onClick={() => !progress.includes('doing') && router.push(`/sdg/${sdg.sdg_id}`)}
+                  >
+                    <h6>{sdg.title}</h6>
+                    <p className="caption">{sdg.description}</p>
+                  </div>
+                  <div className="ml-2 flex-shrink-0 flex items-center">
+                    {progress === 'done' && <Check className="h-5 w-5 text-green-500" />}
+                    {progress === 'doing' && <PlayCircle className="h-5 w-5 text-blue-500" />}
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSdgToDelete({ id: sdg.sdg_id, title: sdg.title });
+                          setIsDeleteModalOpen(true);
+                        }}
+                        className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              );
-            })}
+                {progress === 'doing' && (
+                  <div className="absolute inset-0 bg-neutral-900/80 flex items-center justify-center">
+                    <Lock className="h-8 w-8 text-inverse" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
           </div>
         </div>
 
@@ -274,6 +313,17 @@ export default function Index() {
           </div>
         )}
         <Footer />
+        {sdgToDelete && (
+          <DeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setSdgToDelete(null);
+            }}
+            onConfirm={() => handleDeleteSDG(sdgToDelete.id)}
+            sdgTitle={sdgToDelete.title}
+          />
+        )}
       </main>
     </div>
   );

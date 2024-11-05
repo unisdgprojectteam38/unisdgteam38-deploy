@@ -74,31 +74,24 @@ export default function Index() {
     description: 'Ensure availability and sustainable management of water and sanitation for all.',
   });
 
-  // Fetch news articles
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/news');
-        if (!response.ok) {
-          throw new Error('Failed to fetch news');
-        }
-        const data = await response.json();
-        if (data.articles && Array.isArray(data.articles)) {
-          setArticles(data.articles.slice(0, 10));
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch news');
-        console.error('Error fetching news:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const handleDeleteSDG = async (sdgId: number) => {
+    try {
+      const { error } = await supabase
+        .from('sdgs')
+        .delete()
+        .eq('sdg_id', sdgId);
+  
+      if (error) throw error;
+      
+      // Refresh the SDGs list
+      fetchSdgs();
+      setIsDeleteModalOpen(false);
+      setSdgToDelete(null);
+    } catch (error) {
+      console.error('Error deleting SDG:', error);
+    }
+  };
 
-    fetchNews();
-  }, []);
-
-  // Existing useEffect hooks and functions
   useEffect(() => {
     const fetchUserData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -114,21 +107,20 @@ export default function Index() {
     fetchUserData();
   }, []);
 
-  const handleDeleteSDG = async (sdgId: number) => {
-    try {
-      const { error } = await supabase
-        .from('sdgs')
-        .delete()
-        .eq('sdg_id', sdgId);
-  
-      if (error) throw error;
-      fetchSdgs();
-      setIsDeleteModalOpen(false);
-      setSdgToDelete(null);
-    } catch (error) {
-      console.error('Error deleting SDG:', error);
-    }
-  };
+  useEffect(() => {
+    const fetchSDGNews = async () => {
+      try {
+        const response = await fetch('/api/news');
+        if (!response.ok) throw new Error('Failed to fetch news');
+        const data = await response.json();
+        setArticles(data.articles.slice(0, 10)); // Only take first 10 articles
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
+    };
+
+    fetchSDGNews();
+  }, []);
 
   const fetchSdgs = async () => {
     try {
@@ -144,15 +136,25 @@ export default function Index() {
   };
 
   const fetchUserSdgProgress = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("usersdgprogress")
-      .select("*")
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("Error fetching user SDG progress:", error);
-    } else {
-      setUserSdgProgress(data);
+    try {
+      const { data, error } = await supabase
+        .from("usersdgprogress")
+        .select('sdg_id, progress')
+        .eq("user_id", userId);
+  
+      if (error) {
+        console.error("Error fetching user SDG progress:", error);
+        return;
+      }
+  
+      if (data) {
+        setUserSdgProgress(data.map(item => ({
+          sdg_id: item.sdg_id,
+          progress: item.progress || 'todo'
+        })));
+      }
+    } catch (error) {
+      console.error("Error in fetchUserSdgProgress:", error);
     }
   };
 
@@ -172,14 +174,17 @@ export default function Index() {
 
   return (
     <div className="flex flex-col h-screen bg-default md:flex-row">
+      {/* Mobile menu button */}
+      {/* Do we still need this if we don't have sidebar anymore */}
       <button
         className="md:hidden fixed top-4 left-4 z-20 p-2 bg-surface rounded-md shadow-md"
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
         <Menu className="h-6 w-6" />
       </button>
-      
+      {/* Main content */}
       <main className="flex-1 overflow-y-auto p-8 md:ml-0">
+     
         {/* Hero Section */}
         <div id="Dashboard" className="mb-6">
           <h1>Sustainable Development Goals</h1>
@@ -187,86 +192,102 @@ export default function Index() {
             <div className="w-[600px]">
               <SDGGrid onSelectGoal={handleSelectGoal} />
             </div>
+            {/* Goal # */}
             <div className="flex flex-col justify-center">
               <h2 className="h-fit text-[80px] text-inverse">{selectedGoal.number}</h2>
             </div>
+            {/* Goal Text */}
             <div className="flex flex-col gap-4 justify-center py-8 px-4">
               <h3 className="text-inverse">{selectedGoal.title}</h3>
               <p className="text-inverse max-w-[500px]">{selectedGoal.description}</p>
               <div className="flex flex-row justify-end">
+                {/* <button className="btn-primary">
+                  Learn more
+                </button> */}
               </div>
             </div>
           </div>
         </div>
 
+        {/* Module Progress */}
+        {/* <div className="mb-8 overflow-x-auto">
+          <div className="flex justify-between items-center mb-2 min-w-max">
+            <div className="text-subtler">Newbie</div>
+            <div className="text-default">Master</div>
+          </div>
+          <div className="h-2 bg-surface rounded-full">
+            <div className="h-full w-1/2 bg-sdg-6 rounded-full"></div>
+          </div>
+        </div> */}
+
         {/* SDG Modules */}
         <div id="SDG" className="py-8">
           <h2>Goals</h2>
           {isAdmin && (
-            <div className="mb-6">
-              <Link
-                href="/builder"
-                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Add New SDG
-              </Link>
-            </div>
-          )}
-          
+          <div className="mb-6">
+            <Link
+              href="/builder"
+              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Add New SDG
+            </Link>
+          </div>
+        )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sdgs.map((sdg) => {
-              const progress = getSdgProgress(sdg.sdg_id);
-              return (
-                <div
-                  key={sdg.sdg_id}
-                  className={`relative bg-surface rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
-                    progress === 'doing' ? "opacity-75" : ""
-                  }`}
-                >
-                  <div className="p-4 flex items-start">
-                    <div 
-                      className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 text-inverse`}
-                      style={{ backgroundColor: `var(--sdg-${sdg.sdg_id})` }}
-                    >
-                      {sdg.sdg_display_id}
-                    </div>
-                    <div 
-                      className="flex-grow"
-                      onClick={() => !progress.includes('doing') && router.push(`/sdg/${sdg.sdg_id}`)}
-                    >
-                      <h6>{sdg.title}</h6>
-                      <p className="caption">{sdg.description}</p>
-                    </div>
-                    <div className="ml-2 flex-shrink-0 flex items-center">
-                      {progress === 'done' && <Check className="h-5 w-5 text-green-500" />}
-                      {progress === 'doing' && <PlayCircle className="h-5 w-5 text-blue-500" />}
-                      {isAdmin && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSdgToDelete({ id: sdg.sdg_id, title: sdg.title });
-                            setIsDeleteModalOpen(true);
-                          }}
-                          className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </button>
-                      )}
-                    </div>
+            
+          {sdgs.map((sdg) => {
+            const progress = getSdgProgress(sdg.sdg_id);
+            return (
+              <div
+                key={sdg.sdg_id}
+                className={`relative bg-surface rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer ${
+                  progress === 'doing' ? "opacity-75" : ""
+                }`}
+              >
+                <div className="p-4 flex items-start">
+                  <div 
+                    className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 text-inverse`}
+                    style={{ backgroundColor: `var(--sdg-${sdg.sdg_id})` }}
+                  >
+                    {sdg.sdg_display_id}
                   </div>
-                  {progress === 'doing' && (
-                    <div className="absolute inset-0 bg-neutral-900/80 flex items-center justify-center">
-                      <Lock className="h-8 w-8 text-inverse" />
-                    </div>
-                  )}
+                  <div 
+                    className="flex-grow"
+                    onClick={() => !progress.includes('doing') && router.push(`/sdg/${sdg.sdg_id}`)}
+                  >
+                    <h6>{sdg.title}</h6>
+                    <p className="caption">{sdg.description}</p>
+                  </div>
+                  <div className="ml-2 flex-shrink-0 flex items-center">
+                    {progress === 'done' && <Check className="h-5 w-5 text-green-500" />}
+                    {progress === 'doing' && <PlayCircle className="h-5 w-5 text-blue-500" />}
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSdgToDelete({ id: sdg.sdg_id, title: sdg.title });
+                          setIsDeleteModalOpen(true);
+                        }}
+                        className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              );
-            })}
+                {progress === 'doing' && (
+                  <div className="absolute inset-0 bg-neutral-900/80 flex items-center justify-center">
+                    <Lock className="h-8 w-8 text-inverse" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
           </div>
         </div>
 
-        {/* News Section */}
+        {/* Daily News */}
         <div className="mb-4 pb-4">
           <h2>Daily News</h2>
           <p>
@@ -276,12 +297,11 @@ export default function Index() {
           </p>
         </div>
 
-        {/* News Content */}
-        {isLoading ? (
-          <div className="flex justify-center items-center h-[360px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : error ? (
+
+        {/* News Carousel Section */}
+        {articles.length > 0 ? (
+          <NewsCarousel articles={articles} />
+        ) : (
           <div className="flex flex-row justify-center items-start h-[360px] px-6 py-4 gap-8 mb-4">
             <NewsCard 
               img="/EVAC-header-desktop.jpg"
@@ -302,12 +322,8 @@ export default function Index() {
               href="https://www.globalgoals.org/news/what-are-the-global-goals/"
             />
           </div>
-        ) : (
-          <NewsCarousel articles={articles} />
         )}
-
         <Footer />
-        
         {sdgToDelete && (
           <DeleteModal
             isOpen={isDeleteModalOpen}

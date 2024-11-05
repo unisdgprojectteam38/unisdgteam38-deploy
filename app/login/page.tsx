@@ -11,7 +11,6 @@ export default async function LoginPage({
 }: {
   searchParams: { message?: string };
 }) {
-  // Make sure searchParams is awaited correctly
   const message = searchParams?.message || null;
 
   const signIn = async (formData: FormData) => {
@@ -105,18 +104,30 @@ export default async function LoginPage({
 
   const signInWithGoogle = async () => {
     "use server";
-    const origin = (await headers()).get("origin");
+    const origin = headers().get("origin") || "http://localhost:3000";
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${origin}/auth/callback`,
-      },
-    });
-    if (error) {
+    
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${origin}/auth/callback`,
+        },
+      });
+
+      if (signInError || !data.url) {
+        console.error('Error in Google sign-in:', signInError);
+        return redirect("/login?message=Could not authenticate with Google");
+      }
+
+      // Create the profile after successful OAuth in the callback route
+      // We'll handle this in auth/callback/route.ts
+      return redirect(data.url);
+
+    } catch (error) {
+      console.error('Error in Google sign-in:', error);
       return redirect("/login?message=Could not authenticate with Google");
     }
-    return redirect(data.url);
   };
 
   const handlePasswordReset = async (email: string) => {

@@ -11,6 +11,7 @@ export default function AuthButton() {
   const router = useRouter();
   const supabase = createClient();
   const [userRole, setUserRole] = useState<string | null>(null);
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -18,8 +19,9 @@ export default function AuthButton() {
       console.log("User:", user);
       getUserRole(supabase).then(role => setUserRole(role));
     };
+
     getUser();
-  }, []);
+  }, [supabase]); // Added supabase to dependency array
 
   const signOut = async () => {
     await supabase.auth.signOut();

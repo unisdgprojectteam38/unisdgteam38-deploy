@@ -92,20 +92,71 @@ export default function Index() {
     }
   };
 
-  useEffect(() => {
-    const fetchUserData = async () => {
+
+  const fetchUserSdgProgress = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("usersdgprogress")
+        .select('sdg_id, progress')
+        .eq("user_id", userId);
+  
+      if (error) {
+        console.error("Error fetching user SDG progress:", error);
+        return;
+      }
+  
+      if (data) {
+        setUserSdgProgress(data.map(item => ({
+          sdg_id: item.sdg_id,
+          progress: item.progress || 'todo'
+        })));
+      }
+    } catch (error) {
+      console.error("Error in fetchUserSdgProgress:", error);
+    }
+  };
+
+// Modify the useEffect in the Index component
+useEffect(() => {
+  const fetchUserData = async () => {
+    try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        fetchSdgs();
-        fetchUserSdgProgress(user.id);
-        getUserRole(supabase).then(role => setUserRole(role));
+        
+        // Fetch SDGs first
+        const sdgsResponse = await fetch('/api/sdgs');
+        if (sdgsResponse.ok) {
+          const sdgsData = await sdgsResponse.json();
+          setSdgs(sdgsData);
+        }
+
+        // Fetch user progress
+        const { data: progressData, error } = await supabase
+          .from("usersdgprogress")
+          .select('sdg_id, progress')
+          .eq("user_id", user.id);
+
+        if (!error && progressData) {
+          setUserSdgProgress(progressData.map(item => ({
+            sdg_id: item.sdg_id,
+            progress: item.progress || 'todo'
+          })));
+        }
+
+        // Get user role
+        const role = await getUserRole(supabase);
+        setUserRole(role);
       } else {
         router.push("/login");
       }
-    };
-    fetchUserData();
-  }, []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  fetchUserData();
+}, [supabase, router]); // Remove fetchUserSdgProgress from dependencies
 
   useEffect(() => {
     const fetchSDGNews = async () => {
@@ -135,28 +186,7 @@ export default function Index() {
     }
   };
 
-  const fetchUserSdgProgress = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("usersdgprogress")
-        .select('sdg_id, progress')
-        .eq("user_id", userId);
-  
-      if (error) {
-        console.error("Error fetching user SDG progress:", error);
-        return;
-      }
-  
-      if (data) {
-        setUserSdgProgress(data.map(item => ({
-          sdg_id: item.sdg_id,
-          progress: item.progress || 'todo'
-        })));
-      }
-    } catch (error) {
-      console.error("Error in fetchUserSdgProgress:", error);
-    }
-  };
+
 
   const getSdgProgress = (sdgId: number): 'todo' | 'doing' | 'done' => {
     const progress = userSdgProgress.find((p) => p.sdg_id === sdgId);

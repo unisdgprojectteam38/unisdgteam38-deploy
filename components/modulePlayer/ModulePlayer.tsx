@@ -14,7 +14,6 @@ import QuizSectionComponent from "./sections/quiz/Quiz";
 import TextSectionComponent from "./sections/text/Text";
 import ResourceManagerGameComponent from "./sections/resourceManagerGame/ResourceManagerGame";
 import FlashcardSectionComponent from "./sections/flashcards/Flashcards";
-import { HeaderSection } from "@/components/info/header/HeaderSection";
 import { EventsSection } from "@/components/info/events/EventsSection";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";

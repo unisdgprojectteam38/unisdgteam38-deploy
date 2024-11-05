@@ -29,17 +29,18 @@ export default function Header() {
           .select('role')
           .eq('id', user.id)
           .single();
-        
+       
         setIsAdmin(profile?.role === 'admin');
       }
     };
+  
     getInitialUser();
-
+  
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user;
       setUser(currentUser ?? null);
-      
+     
       if (currentUser) {
         // Check admin status when auth state changes
         const { data: profile } = await supabase
@@ -47,17 +48,17 @@ export default function Header() {
           .select('role')
           .eq('id', currentUser.id)
           .single();
-        
+       
         setIsAdmin(profile?.role === 'admin');
       } else {
         setIsAdmin(false);
       }
     });
-
+  
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]); // Add supabase to dependency array
 
   return (
     <header className="sticky top-0 z-[901] h-full bg-surface">

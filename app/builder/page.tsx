@@ -21,7 +21,6 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { HeaderSection } from '@/components/info/header/HeaderSection';
 
 import EditableTextSectionComponent from '@/components/modulePlayer/sections/text/Text';
 import QuizSectionComponent from '@/components/modulePlayer/sections/quiz/Quiz';
@@ -148,6 +147,7 @@ const AdminBuilder: React.FC = () => {
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
   const supabase = createClient();
 
+  // Fixed version:
   useEffect(() => {
     const checkUserRole = async () => {
       try {
@@ -162,7 +162,7 @@ const AdminBuilder: React.FC = () => {
     };
     
     checkUserRole();
-  }, [router]);
+  }, [router, supabase]); // Added supabase to dependency array
 
   const sensors = useSensors(
     useSensor(PointerSensor),

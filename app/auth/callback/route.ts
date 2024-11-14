@@ -40,5 +40,5 @@ export async function GET(request: Request) {
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${productionUrl}/login?message=Email confirmed! Please sign in.`);
+  return NextResponse.redirect(`${productionUrl}`);
 }

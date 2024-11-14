@@ -6,7 +6,7 @@ The frontend of the Learning Management System (LMS) is built with **React** and
 
 ### Demo
 
-Try the [https://sdg-gamified-lms-it.vercel.app/](https://sdg-gamified-lms-it.vercel.app/).
+Try the [https://www.unisdg.xyz](https://www.unisdg.xyz).
 
 ---
 

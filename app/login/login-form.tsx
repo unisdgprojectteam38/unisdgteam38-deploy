@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface LoginFormClientProps {
   signIn: (formData: FormData) => Promise<void>;
@@ -33,6 +33,47 @@ function ActionButton({
   );
 }
 
+function Modal({ 
+  isOpen, 
+  onClose, 
+  children 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  children: React.ReactNode;
+}) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div 
+        className="absolute inset-0 bg-black bg-opacity-50"
+        onClick={onClose}
+      />
+      <div className="relative bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-500"
+        >
+          ✕
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function LoginFormClient({
   signIn,
   signUp,
@@ -44,6 +85,7 @@ export default function LoginFormClient({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const validatePassword = (pass: string) => {
     if (pass.length < 8) {
@@ -93,6 +135,7 @@ export default function LoginFormClient({
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
       await signUp(formData);
+      setShowConfirmDialog(true);
     } catch (error) {
       console.error("Sign up error:", error);
     } finally {
@@ -115,6 +158,7 @@ export default function LoginFormClient({
   const googleButtonClassName = "w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50";
 
   return (
+    <>
     <div className="w-full md:w-1/2 bg-white p-8">
       <h2 className="text-2xl font-bold mb-6 text-center">
         {isSignUpMode ? "Create an Account" : "Welcome!"}
@@ -298,5 +342,27 @@ export default function LoginFormClient({
         </p>
       )}
     </div>
+      <Modal 
+        isOpen={showConfirmDialog} 
+        onClose={() => setShowConfirmDialog(false)}
+      >
+        <div className="text-center">
+          <h3 className="text-lg font-semibold mb-4">Check Your Email</h3>
+          <p className="mb-3">
+            Please check your email to confirm your account. You may need to check your spam folder.
+          </p>
+          <p className="text-gray-600">
+            After confirming, you can sign in with your credentials.
+          </p>
+          <button
+            onClick={() => setShowConfirmDialog(false)}
+            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
+    </>
+
   );
 }

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const origin = requestUrl.origin;
+  const productionUrl = "https://www.unisdg.xyz";
 
   if (code) {
     const supabase = createClient();
@@ -40,5 +40,5 @@ export async function GET(request: Request) {
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${origin}/`);
+  return NextResponse.redirect(`${productionUrl}/login?message=Email confirmed! Please sign in.`);
 }

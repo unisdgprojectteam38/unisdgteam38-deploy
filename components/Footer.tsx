@@ -48,7 +48,7 @@ export default function Footer() {
             <h6 className="w-[200px] h-6">Contact Us</h6>
             <div className="h-6 flex-col justify-start items-start gap-2 flex">
               <Link href="@emailaddress">
-                <p className="self-stretch caption text-default">support@unisdg.com</p>
+                <p className="self-stretch caption text-default">unisdgproject@gmail.com</p>
               </Link>
             </div>
             <h6 className="w-[200px] h-6">Legal</h6>

@@ -8,7 +8,6 @@ interface LoginFormClientProps {
   message?: string;
 }
 
-// Separate Button component that doesn't use useFormStatus
 function ActionButton({ 
   children, 
   pending, 
@@ -42,6 +41,26 @@ export default function LoginFormClient({
 }: LoginFormClientProps) {
   const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const validatePassword = (pass: string) => {
+    if (pass.length < 8) {
+      return "Password must be at least 8 characters long";
+    }
+    if (!/[A-Z]/.test(pass)) {
+      return "Password must contain at least one uppercase letter";
+    }
+    if (!/[a-z]/.test(pass)) {
+      return "Password must contain at least one lowercase letter";
+    }
+    if (!/[0-9]/.test(pass)) {
+      return "Password must contain at least one number";
+    }
+    return "";
+  };
+
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +77,18 @@ export default function LoginFormClient({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+
+    const validationError = validatePassword(password);
+    if (validationError) {
+      setPasswordError(validationError);
+      return;
+    }
+
     setIsPending(true);
     try {
       const formData = new FormData(e.currentTarget as HTMLFormElement);
@@ -119,8 +150,45 @@ export default function LoginFormClient({
               required
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError("");
+              }}
             />
-            <p className="mt-1 text-xs text-gray-500">min 8 characters</p>
+          </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setPasswordError("");
+              }}
+            />
+          </div>
+
+          {passwordError && (
+            <p className="text-red-500 text-sm">{passwordError}</p>
+          )}
+
+          <div className="text-xs text-gray-500">
+            Password must:
+            <ul className="list-disc ml-4 mt-1">
+              <li>Be at least 8 characters long</li>
+              <li>Contain at least one uppercase letter</li>
+              <li>Contain at least one lowercase letter</li>
+              <li>Contain at least one number</li>
+            </ul>
           </div>
 
           <ActionButton

@@ -13,25 +13,23 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
 
   const handlePasswordReset = async () => {
-    const origin = window.location.origin;
-
+    const domain = "https://www.unisdg.xyz";
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${origin}/update-password`, // Supabase will add `?access_token=token`
+        redirectTo: `${domain}/reset-password`, // Changed from update-password
       });
-
       if (error) {
         setError("Failed to send password reset email. Please try again.");
-        console.error("Error sending password reset email:", error.message);
+        console.error("Error:", error.message);
       } else {
-        setEmailSent(true); // Show success message if the email was sent
+        setEmailSent(true);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
-      console.error("Unexpected error:", err);
+      console.error("Error:", err);
     }
-  };
-
+   };
+   
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     if (email) {

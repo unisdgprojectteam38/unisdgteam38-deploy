@@ -16,7 +16,7 @@ export default function ResetPassword() {
     const domain = "https://www.unisdg.xyz";
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${domain}/update-password`, // Changed from update-password
+        redirectTo: `${domain}/update-password`,
       });
       if (error) {
         setError("Failed to send password reset email. Please try again.");
